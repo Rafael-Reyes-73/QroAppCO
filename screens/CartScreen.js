@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,38 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
+  Image,
+  Animated,
+  Platform,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 const ProductItem = ({ brand, name, details, price, initialQty = 1 }) => {
   const [qty, setQty] = useState(initialQty);
-  
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleQtyChange = (change) => {
+    const newQty = Math.max(1, qty + change);
+    setQty(newQty);
+    
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   return (
-    <View style={styles.productItem}>
+    <Animated.View style={[styles.productItem, { transform: [{ scale: scaleAnim }] }]}>
       <View style={styles.imageContainer}>
         <Text style={styles.productLetter}>{brand.charAt(0)}</Text>
       </View>
@@ -26,90 +51,175 @@ const ProductItem = ({ brand, name, details, price, initialQty = 1 }) => {
       <View style={styles.productRight}>
         <Text style={styles.productPrice}>${price}</Text>
         <View style={styles.qtyControl}>
-          <TouchableOpacity onPress={() => setQty(Math.max(1, qty - 1))}>
-            <Text style={styles.qtyBtn}>−</Text>
+          <TouchableOpacity 
+            style={styles.qtyBtn}
+            onPress={() => handleQtyChange(-1)}
+            activeOpacity={0.7}
+          >
+            <Feather name="minus" size={14} color="#0d8a4e" />
           </TouchableOpacity>
           <Text style={styles.qtyText}>{qty}</Text>
-          <TouchableOpacity onPress={() => setQty(qty + 1)}>
-            <Text style={styles.qtyBtn}>+</Text>
+          <TouchableOpacity 
+            style={styles.qtyBtn}
+            onPress={() => handleQtyChange(1)}
+            activeOpacity={0.7}
+          >
+            <Feather name="plus" size={14} color="#0d8a4e" />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
 export default function CartScreen() {
+  const [selectedTab, setSelectedTab] = useState('catalog');
+
+  const tabs = [
+    { id: 'home', icon: 'home', label: 'Home' },
+    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
+    { id: 'test', icon: 'help-circle', label: 'Test' },
+    { id: 'profile', icon: 'user', label: 'Perfil' },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#0b3a1e" barStyle="light-content" />
-      <ScrollView style={styles.container}>
-        <Text style={styles.title}>Mi Carrito</Text>
-        
-        <View style={styles.stockBadge}>
-          <Text style={styles.stockText}>Existencias verificadas. Tus productos están reservados para ti.</Text>
-        </View>
-
-        <ProductItem 
-          brand="Fertilizante" 
-          name="Orgánico Pro" 
-          details="500ml • Nutrición Completa" 
-          price="24.90" 
-        />
-        
-        <ProductItem 
-          brand="Semillas de Tomate" 
-          name="Heirloom • 50 Semillas" 
-          details="" 
-          price="8.50" 
-          initialQty={2} 
-        />
-        
-        <ProductItem 
-          brand="Tijeras de Poda" 
-          name="Acero Inoxidable Pro" 
-          details="" 
-          price="35.00" 
-        />
-
-        <View style={styles.divider} />
-        
-        <Text style={styles.summaryTitle}>Resumen del pedido</Text>
-        
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>$76.90</Text>
-        </View>
-        
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Envío</Text>
-          <Text style={[styles.summaryValue, styles.freeShipping]}>GRATIS</Text>
-        </View>
-        
-        <View style={[styles.summaryRow, styles.totalRow]}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>$76.90</Text>
-        </View>
-
-        <View style={styles.couponBox}>
-          <Text style={styles.couponLabel}>¿Tienes un cupón?</Text>
-          <View style={styles.couponInputWrapper}>
-            <TextInput 
-              style={styles.couponInput} 
-              placeholder="Código" 
-              placeholderTextColor="#8ab89a" 
-              defaultValue="Código" 
-            />
-            <TouchableOpacity style={styles.applyBtn}>
-              <Text style={styles.applyBtnText}>Aplicar</Text>
+      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
+      
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={styles.backButton}>
+              <Feather name="arrow-left" size={22} color="#0a3a1a" />
             </TouchableOpacity>
+            <View style={styles.headerLogoContainer}>
+              <Image 
+                source={logoImage}
+                style={styles.headerLogo}
+                resizeMode="cover"
+              />
+            </View>
           </View>
+          <Text style={styles.headerTitle}>Mi Carrito</Text>
+          <TouchableOpacity style={styles.deleteButton}>
+            <Feather name="trash-2" size={20} color="#0a3a1a" />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.payBtn}>
-          <Text style={styles.payBtnText}>Proceder al Pago →</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        <ScrollView 
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Stock Badge */}
+          <View style={styles.stockBadge}>
+            <Feather name="check-circle" size={16} color="#0d8a4e" />
+            <Text style={styles.stockText}>
+              Existencias verificadas. Tus productos están reservados para ti.
+            </Text>
+          </View>
+
+          {/* Productos */}
+          <ProductItem 
+            brand="Fertilizante" 
+            name="Orgánico Pro" 
+            details="500ml • Nutrición Completa" 
+            price="24.90" 
+          />
+          
+          <ProductItem 
+            brand="Semillas de Tomate" 
+            name="Heirloom • 50 Semillas" 
+            details="" 
+            price="8.50" 
+            initialQty={2} 
+          />
+          
+          <ProductItem 
+            brand="Tijeras de Poda" 
+            name="Acero Inoxidable Pro" 
+            details="" 
+            price="35.00" 
+          />
+
+          <View style={styles.divider} />
+          
+          {/* Resumen del pedido */}
+          <Text style={styles.summaryTitle}>Resumen del pedido</Text>
+          
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryValue}>$76.90</Text>
+          </View>
+          
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Envío</Text>
+            <Text style={[styles.summaryValue, styles.freeShipping]}>GRATIS</Text>
+          </View>
+          
+          <View style={[styles.summaryRow, styles.totalRow]}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalValue}>$76.90</Text>
+          </View>
+
+          {/* Cupón */}
+          <View style={styles.couponBox}>
+            <View style={styles.couponHeader}>
+              <Feather name="ticket" size={16} color="#0d8a4e" />
+              <Text style={styles.couponLabel}>¿Tienes un cupón?</Text>
+            </View>
+            <View style={styles.couponInputWrapper}>
+              <TextInput 
+                style={styles.couponInput} 
+                placeholder="Ingresa tu código" 
+                placeholderTextColor="#8a9a8e"
+                defaultValue="CÓDIGO" 
+              />
+              <TouchableOpacity style={styles.applyBtn} activeOpacity={0.7}>
+                <Text style={styles.applyBtnText}>Aplicar</Text>
+                <Feather name="check" size={14} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Botón Pagar */}
+          <TouchableOpacity style={styles.payBtn} activeOpacity={0.8}>
+            <Text style={styles.payBtnText}>Proceder al Pago</Text>
+            <Feather name="arrow-right" size={18} color="#ffffff" />
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[
+                styles.navItem,
+                selectedTab === tab.id && styles.navItemActive
+              ]}
+              onPress={() => setSelectedTab(tab.id)}
+              activeOpacity={0.7}
+            >
+              <Feather 
+                name={tab.icon} 
+                size={20} 
+                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
+              />
+              <Text style={[
+                styles.navText,
+                selectedTab === tab.id && styles.navTextActive
+              ]}>
+                {tab.label}
+              </Text>
+              {selectedTab === tab.id && (
+                <View style={styles.navIndicator} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -117,55 +227,102 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f9f7',
+    backgroundColor: '#f5faf7',
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    backgroundColor: '#f5faf7',
   },
-  title: {
-    fontSize: 28,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.04)',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerLogoContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+  },
+  headerTitle: {
+    fontSize: 18,
     fontWeight: '700',
-    color: '#0b2a1a',
-    marginBottom: 12,
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 100,
   },
   stockBadge: {
-    backgroundColor: '#e6f5ed',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(13, 138, 78, 0.06)',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 40,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#b8dfc8',
+    borderColor: 'rgba(13, 138, 78, 0.08)',
     marginBottom: 20,
+    gap: 8,
   },
   stockText: {
     fontSize: 13,
-    color: '#1a7540',
+    color: '#0d8a4e',
     fontWeight: '500',
+    flex: 1,
   },
   productItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e8f5ee',
+    borderBottomColor: 'rgba(13, 138, 78, 0.06)',
   },
   imageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 14,
     borderWidth: 2,
-    borderColor: '#c6e2d4',
+    borderColor: 'rgba(13, 138, 78, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#d9ece2',
+    backgroundColor: 'rgba(13, 138, 78, 0.04)',
     marginRight: 12,
   },
   productLetter: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#1a7540',
+    color: '#0d8a4e',
   },
   productInfo: {
     flex: 1,
@@ -173,19 +330,22 @@ const styles = StyleSheet.create({
   brand: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#2a7a4a',
+    color: '#0d8a4e',
     textTransform: 'uppercase',
     marginBottom: 2,
+    letterSpacing: 0.5,
   },
   name: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
     marginBottom: 1,
+    letterSpacing: 0.2,
   },
   details: {
     fontSize: 12,
-    color: '#4a7a5e',
+    color: '#4a6a4e',
+    fontWeight: '400',
   },
   productRight: {
     alignItems: 'flex-end',
@@ -193,42 +353,40 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
     marginBottom: 6,
   },
   qtyControl: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#eef7f2',
-    borderRadius: 40,
+    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#c6e2d4',
+    borderColor: 'rgba(13, 138, 78, 0.08)',
   },
   qtyBtn: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#1a6a3e',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 4,
   },
   qtyText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
     paddingHorizontal: 4,
     minWidth: 24,
     textAlign: 'center',
   },
   divider: {
-    height: 1.5,
-    backgroundColor: '#d9ece2',
+    height: 1,
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
     marginVertical: 20,
   },
   summaryTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
     marginBottom: 14,
+    letterSpacing: 0.3,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -236,57 +394,62 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   summaryLabel: {
-    fontSize: 15,
-    color: '#3a6a4e',
+    fontSize: 14,
+    color: '#4a6a4e',
     fontWeight: '500',
   },
   summaryValue: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
   },
   freeShipping: {
-    color: '#1a7540',
+    color: '#0d8a4e',
     fontWeight: '600',
   },
   totalRow: {
     borderTopWidth: 2,
-    borderTopColor: '#c6e2d4',
+    borderTopColor: 'rgba(13, 138, 78, 0.08)',
     marginTop: 8,
     paddingTop: 14,
   },
   totalLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
   },
   totalValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0b3a1e',
+    color: '#0d8a4e',
   },
   couponBox: {
-    backgroundColor: '#f2faf5',
+    backgroundColor: 'rgba(13, 138, 78, 0.04)',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 60,
+    paddingVertical: 14,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#c6e2d4',
+    borderColor: 'rgba(13, 138, 78, 0.06)',
     marginVertical: 18,
+  },
+  couponHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
   },
   couponLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1a5a3a',
-    marginBottom: 8,
+    color: '#0a3a1a',
   },
   couponInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    borderRadius: 40,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#c6e2d4',
+    borderColor: 'rgba(13, 138, 78, 0.08)',
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
@@ -294,15 +457,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '500',
-    color: '#0b2a1a',
+    color: '#0a3a1a',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
   applyBtn: {
-    backgroundColor: '#0b3a1e',
-    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0d8a4e',
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 40,
+    borderRadius: 10,
+    gap: 4,
   },
   applyBtnText: {
     color: 'white',
@@ -310,18 +476,67 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   payBtn: {
-    backgroundColor: '#0b3a1e',
-    paddingVertical: 16,
-    borderRadius: 60,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0d8a4e',
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 8,
     marginTop: 6,
-    marginBottom: 30,
+    marginBottom: 10,
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 5,
   },
   payBtnText: {
     color: 'white',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
+  },
+  bottomNav: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 65,
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.04)',
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    position: 'relative',
+  },
+  navItemActive: {
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+  },
+  navText: {
+    fontSize: 10,
+    color: '#6a8a6e',
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  navTextActive: {
+    color: '#0d8a4e',
+    fontWeight: '700',
+  },
+  navIndicator: {
+    position: 'absolute',
+    top: -1,
+    width: 16,
+    height: 2.5,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 2,
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,9 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Animated,
+  Platform,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -14,23 +17,98 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
+
 export default function ActividadesScreen({ onClose }) {
+  const [activeTab, setActiveTab] = useState('Pendientes');
+  const [selectedTab, setSelectedTab] = useState('home');
+  const [completedTasks, setCompletedTasks] = useState({});
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleComplete = (id) => {
+    setCompletedTasks(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+    
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const tasks = [
+    {
+      id: 1,
+      color: '#0d8a4e',
+      iconBg: '#c8f0d0',
+      icon: 'water-outline',
+      title: 'Riego regular',
+      date: 'HOY, 6:00 PM',
+      description: 'Asegurar humedad profunda para las raíces.',
+      plant: 'Tomate Roma',
+    },
+    {
+      id: 2,
+      color: '#8a6535',
+      iconBg: '#ffe0b1',
+      icon: 'content-cut',
+      title: 'Poda de mantenimiento',
+      date: 'Mañana, 8:00 AM',
+      description: 'Eliminar chupones laterales para mejorar el flujo de aire.',
+      plant: 'Albahaca Genovesa',
+    },
+    {
+      id: 3,
+      color: '#0d8a4e',
+      iconBg: '#baf0ad',
+      icon: 'recycle',
+      title: 'Fertilización orgánica',
+      date: '22 May, 10:00 AM',
+      description: 'Aplicar humus de lombriz en la base.',
+      plant: 'Calabacín',
+    },
+  ];
+
+  const tabs = [
+    { id: 'home', icon: 'home', label: 'Home' },
+    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
+    { id: 'test', icon: 'help-circle', label: 'Test' },
+    { id: 'profile', icon: 'user', label: 'Perfil' },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
+      <StatusBar style="dark" backgroundColor="#f5faf7" />
 
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.logoText}>potted_plant</Text>
+            <View style={styles.headerLogoContainer}>
+              <Image 
+                source={logoImage}
+                style={styles.headerLogo}
+                resizeMode="cover"
+              />
+            </View>
             <Text style={styles.headerTitle}>Actividades</Text>
           </View>
 
           <View style={styles.headerIcons}>
-            <Feather name="rotate-ccw" size={21} color="#4c584b" />
-
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="rotate-ccw" size={20} color="#0a3a1a" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={21} color="#154f1f" />
+              <Feather name="x" size={20} color="#0a3a1a" />
             </TouchableOpacity>
           </View>
         </View>
@@ -39,313 +117,319 @@ export default function ActividadesScreen({ onClose }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Banner */}
           <View style={styles.banner}>
-            <View>
-              <Text style={styles.bannerTitle}>Crecimiento Vital</Text>
-              <Text style={styles.bannerText}>Tienes 5 tareas para hoy.</Text>
+            <View style={styles.bannerContent}>
+              <Text style={styles.bannerTitle}>Crecimiento Activo</Text>
+              <Text style={styles.bannerText}>Tienes {tasks.length} tareas pendientes</Text>
             </View>
-
-            <View style={styles.leafCircle}>
-              <MaterialCommunityIcons name="leaf" size={95} color="#214f22" />
-            </View>
-          </View>
-
-          <View style={styles.tabs}>
-            <View style={styles.activeTab}>
-              <Text style={styles.activeTabText}>Pendientes</Text>
-            </View>
-
-            <View style={styles.inactiveTab}>
-              <Text style={styles.inactiveTabText}>Completadas</Text>
+            <View style={styles.bannerIconContainer}>
+              <MaterialCommunityIcons name="sprout" size={48} color="#7ddfa0" />
             </View>
           </View>
 
+          {/* Tabs */}
+          <View style={styles.tabsContainer}>
+            {['Pendientes', 'Completadas'].map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                style={[
+                  styles.tab,
+                  activeTab === tab && styles.tabActive,
+                ]}
+                onPress={() => setActiveTab(tab)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.tabText,
+                  activeTab === tab && styles.tabTextActive,
+                ]}>
+                  {tab}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Search */}
           <View style={styles.searchBox}>
-            <Feather name="search" size={21} color="#7b8379" />
+            <Feather name="search" size={20} color="#6a8a6e" />
             <TextInput
               style={styles.searchInput}
               placeholder="Filtrar por cultivo..."
-              placeholderTextColor="#b6c0b3"
-              editable={false}
+              placeholderTextColor="#8a9a8e"
+              returnKeyType="search"
             />
           </View>
 
-          <TaskCard
-            color="#0d4f17"
-            iconBg="#c7edc4"
-            icon="water-outline"
-            title="Riego regular"
-            date="HOY, 6:00 PM"
-            description="Asegurar humedad profunda para las raíces."
-            plant="Tomate Roma"
-            buttonDark
-          />
+          {/* Tasks */}
+          {tasks.map((task) => (
+            <Animated.View
+              key={task.id}
+              style={[
+                styles.cardWrapper,
+                {
+                  transform: [{ 
+                    scale: completedTasks[task.id] ? scaleAnim : 1 
+                  }],
+                },
+              ]}
+            >
+              <View style={[styles.card, { borderLeftColor: task.color }]}>
+                <View style={styles.cardContent}>
+                  <View style={[styles.iconBox, { backgroundColor: task.iconBg }]}>
+                    <MaterialCommunityIcons name={task.icon} size={24} color="#0a3a1a" />
+                  </View>
 
-          <TaskCard
-            color="#8a6535"
-            iconBg="#ffe0b1"
-            icon="content-cut"
-            title="Poda de mantenimiento"
-            date="Mañana, 8:00 AM"
-            description="Eliminar chupones laterales para mejorar el flujo de aire."
-            plant="Albahaca Genovesa"
-            completed
-          />
+                  <View style={styles.cardInfo}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.cardTitle}>{task.title}</Text>
+                      <Text style={styles.cardDate}>{task.date}</Text>
+                    </View>
 
-          <TaskCard
-            color="#0d4f17"
-            iconBg="#baf0ad"
-            icon="recycle"
-            title="Fertilización orgánica"
-            date="22 May, 10:00 AM"
-            description="Aplicar humus de lombriz en la base."
-            plant="Calabacín"
-            buttonDark
-          />
+                    <Text style={styles.cardDescription}>{task.description}</Text>
+
+                    <View style={styles.plantRow}>
+                      <Feather name="package" size={14} color="#8a9a8e" />
+                      <Text style={styles.plantText}>{task.plant}</Text>
+                    </View>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.completeButton,
+                        completedTasks[task.id] && styles.completeButtonCompleted,
+                      ]}
+                      onPress={() => handleComplete(task.id)}
+                      activeOpacity={0.7}
+                    >
+                      {completedTasks[task.id] ? (
+                        <Feather name="check-circle" size={18} color="#0d8a4e" />
+                      ) : (
+                        <Feather name="circle" size={18} color="#8a9a8e" />
+                      )}
+                      <Text style={[
+                        styles.completeButtonText,
+                        completedTasks[task.id] && styles.completeButtonTextCompleted,
+                      ]}>
+                        {completedTasks[task.id] ? 'Completada' : 'Marcar como completada'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Animated.View>
+          ))}
         </ScrollView>
 
+        {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
-          <View style={styles.navActive}>
-            <Feather name="clipboard" size={22} color="#ffffff" />
-            <Text style={styles.navActiveText}>Tasks</Text>
-          </View>
-
-          <NavItem icon="flower-outline" label="Garden" />
-          <NavItemFeather icon="bar-chart-2" label="Stats" />
-          <NavItemFeather icon="settings" label="Settings" />
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[
+                styles.navItem,
+                selectedTab === tab.id && styles.navItemActive
+              ]}
+              onPress={() => setSelectedTab(tab.id)}
+              activeOpacity={0.7}
+            >
+              <Feather 
+                name={tab.icon} 
+                size={20} 
+                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
+              />
+              <Text style={[
+                styles.navText,
+                selectedTab === tab.id && styles.navTextActive
+              ]}>
+                {tab.label}
+              </Text>
+              {selectedTab === tab.id && (
+                <View style={styles.navIndicator} />
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
     </SafeAreaView>
   );
 }
 
-function TaskCard({
-  color,
-  iconBg,
-  icon,
-  title,
-  date,
-  description,
-  plant,
-  buttonDark,
-  completed,
-}) {
-  return (
-    <View style={[styles.card, { borderLeftColor: color }]}>
-      <View style={styles.cardContent}>
-        <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
-          <MaterialCommunityIcons name={icon} size={25} color="#143f1a" />
-        </View>
-
-        <View style={styles.cardInfo}>
-          <View style={styles.cardTop}>
-            <Text style={styles.cardTitle}>{title}</Text>
-            <Text style={styles.cardDate}>{date}</Text>
-          </View>
-
-          <Text style={styles.cardDescription}>{description}</Text>
-
-          <View style={styles.plantRow}>
-            <MaterialCommunityIcons name="flower-outline" size={15} color="#9aa59a" />
-            <Text style={styles.plantText}>{plant}</Text>
-          </View>
-
-          <TouchableOpacity
-            activeOpacity={1}
-            style={[
-              styles.completeButton,
-              buttonDark && styles.completeButtonDark,
-              completed && styles.completeButtonLight,
-            ]}
-          >
-            {completed ? (
-              <Feather name="check" size={18} color="#5a8158" />
-            ) : (
-              <Feather name="check-circle" size={18} color="#ffffff" />
-            )}
-
-            <Text
-              style={[
-                styles.completeButtonText,
-                buttonDark && styles.completeButtonTextDark,
-                completed && styles.completeButtonTextLight,
-              ]}
-            >
-              Marcar como completada
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function NavItem({ icon, label }) {
-  return (
-    <View style={styles.navItem}>
-      <MaterialCommunityIcons name={icon} size={23} color="#7d877c" />
-      <Text style={styles.navText}>{label}</Text>
-    </View>
-  );
-}
-
-function NavItemFeather({ icon, label }) {
-  return (
-    <View style={styles.navItem}>
-      <Feather name={icon} size={23} color="#7d877c" />
-      <Text style={styles.navText}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f7faf7',
+    backgroundColor: '#f5faf7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f7faf7',
-    paddingHorizontal: 22,
+    backgroundColor: '#f5faf7',
+    paddingHorizontal: 16,
   },
   header: {
-    height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
-  logoText: {
-    fontSize: 23,
-    color: '#154f1f',
-    fontWeight: '400',
-    marginRight: 12,
+  headerLogoContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
   },
   headerTitle: {
-    fontSize: 23,
-    fontWeight: '900',
-    color: '#173f19',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  iconButton: {
+    padding: 4,
   },
   closeButton: {
-    marginLeft: 10,
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#eef4ed',
+    backgroundColor: '#f0f5f2',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: {
-    paddingBottom: 110,
+    paddingTop: 16,
+    paddingBottom: 100,
   },
   banner: {
-    height: 140,
-    backgroundColor: '#2d6129',
-    borderRadius: 10,
-    paddingHorizontal: 40,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginBottom: 24,
-  },
-  bannerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#9bd391',
-    marginBottom: 4,
-  },
-  bannerText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#9bd391',
-  },
-  leafCircle: {
-    position: 'absolute',
-    right: -35,
-    bottom: -35,
-    width: 125,
-    height: 125,
-    borderRadius: 70,
-    backgroundColor: '#255522',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabs: {
-    height: 48,
-    backgroundColor: '#f2f5f1',
-    borderRadius: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 28,
+    justifyContent: 'space-between',
+    backgroundColor: '#0d8a4e',
+    borderRadius: 14,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  activeTab: {
+  bannerContent: {
     flex: 1,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#105219',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  inactiveTab: {
-    flex: 1,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeTabText: {
-    color: '#ffffff',
-    fontSize: 16,
+  bannerTitle: {
+    fontSize: 24,
     fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: 0.3,
   },
-  inactiveTabText: {
-    color: '#444c43',
-    fontSize: 16,
+  bannerText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 4,
+  },
+  bannerIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  tabActive: {
+    backgroundColor: '#0d8a4e',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4a6a4e',
+  },
+  tabTextActive: {
+    color: '#ffffff',
     fontWeight: '600',
   },
   searchBox: {
-    height: 56,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 40,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    gap: 10,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#394039',
+    fontSize: 14,
+    color: '#0a3a1a',
+    paddingVertical: 10,
+  },
+  cardWrapper: {
+    marginBottom: 14,
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 14,
     borderLeftWidth: 4,
-    marginBottom: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 22,
+    padding: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
     elevation: 2,
   },
   cardContent: {
     flexDirection: 'row',
   },
   iconBox: {
-    width: 49,
-    height: 49,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 24,
+    marginRight: 14,
   },
   cardInfo: {
     flex: 1,
@@ -353,101 +437,103 @@ const styles = StyleSheet.create({
   cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    alignItems: 'flex-start',
   },
   cardTitle: {
     flex: 1,
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#202420',
-    lineHeight: 27,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0a3a1a',
+    letterSpacing: 0.2,
   },
   cardDate: {
-    width: 82,
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#324132',
-    textAlign: 'right',
-    lineHeight: 16,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#6a8a6e',
+    letterSpacing: 0.3,
+    marginLeft: 8,
   },
   cardDescription: {
-    fontSize: 15,
-    color: '#4f574f',
-    fontWeight: '600',
-    lineHeight: 22,
+    fontSize: 13,
+    color: '#4a6a4e',
+    fontWeight: '400',
+    lineHeight: 20,
     marginTop: 4,
   },
   plantRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 22,
+    marginTop: 10,
     gap: 6,
   },
   plantText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#b5beb3',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#8a9a8e',
   },
   completeButton: {
-    marginTop: 16,
-    borderRadius: 9,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
+    marginTop: 12,
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    alignSelf: 'flex-start',
   },
-  completeButtonDark: {
-    backgroundColor: '#0d4f17',
-  },
-  completeButtonLight: {
-    backgroundColor: '#c8efc6',
+  completeButtonCompleted: {
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
   },
   completeButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#4a6a4e',
   },
-  completeButtonTextDark: {
-    color: '#ffffff',
-  },
-  completeButtonTextLight: {
-    color: '#5a8158',
+  completeButtonTextCompleted: {
+    color: '#0d8a4e',
+    fontWeight: '600',
   },
   bottomNav: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 76,
-    backgroundColor: '#eef3ed',
+    height: 65,
+    backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 26,
-  },
-  navActive: {
-    width: 66,
-    height: 45,
-    borderRadius: 24,
-    backgroundColor: '#2d742e',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navActiveText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 1,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.04)',
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   navItem: {
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    position: 'relative',
+  },
+  navItemActive: {
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
   },
   navText: {
-    fontSize: 12,
-    color: '#747d73',
-    fontWeight: '700',
+    fontSize: 10,
+    color: '#6a8a6e',
+    fontWeight: '500',
     marginTop: 2,
+  },
+  navTextActive: {
+    color: '#0d8a4e',
+    fontWeight: '700',
+  },
+  navIndicator: {
+    position: 'absolute',
+    top: -1,
+    width: 16,
+    height: 2.5,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 2,
   },
 });

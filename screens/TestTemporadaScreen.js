@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,24 +7,70 @@ import {
   ScrollView,
   TouchableOpacity,
   ImageBackground,
+  Image,
+  Animated,
+  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
+
 export default function TestTemporadaScreen({ onClose }) {
+  const [selectedSeason, setSelectedSeason] = useState(null);
+  const [selectedTab, setSelectedTab] = useState('test');
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const seasons = [
+    { id: 1, title: 'Primavera', image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80' },
+    { id: 2, title: 'Verano', image: 'https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=900&q=80' },
+    { id: 3, title: 'Otoño', image: 'https://images.unsplash.com/photo-1506917728037-b6af01a7d403?auto=format&fit=crop&w=900&q=80' },
+    { id: 4, title: 'Invierno', image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80' },
+  ];
+
+  const handleSelect = (id) => {
+    setSelectedSeason(id);
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const tabs = [
+    { id: 'home', icon: 'home', label: 'Home' },
+    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
+    { id: 'test', icon: 'help-circle', label: 'Test' },
+    { id: 'profile', icon: 'user', label: 'Perfil' },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
+      <StatusBar style="dark" backgroundColor="#f5faf7" />
 
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="leaf" size={20} color="#154f1f" />
+            <View style={styles.headerLogoContainer}>
+              <Image 
+                source={logoImage}
+                style={styles.headerLogo}
+                resizeMode="cover"
+              />
+            </View>
             <Text style={styles.headerTitle}>Test</Text>
           </View>
 
-          <TouchableOpacity onPress={onClose}>
-            <Feather name="x" size={24} color="#4c554b" />
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Feather name="x" size={20} color="#0a3a1a" />
           </TouchableOpacity>
         </View>
 
@@ -32,15 +78,22 @@ export default function TestTemporadaScreen({ onClose }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.progressTop}>
-            <Text style={styles.progressText}>Paso 2 de 3</Text>
-            <Text style={styles.percentText}>66%</Text>
+          {/* Progreso */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressTop}>
+              <View style={styles.progressLabel}>
+                <Feather name="bar-chart-2" size={16} color="#0d8a4e" />
+                <Text style={styles.progressText}>Paso 2 de 3</Text>
+              </View>
+              <Text style={styles.percentText}>66%</Text>
+            </View>
+
+            <View style={styles.progressBg}>
+              <View style={styles.progressFill} />
+            </View>
           </View>
 
-          <View style={styles.progressBg}>
-            <View style={styles.progressFill} />
-          </View>
-
+          {/* Título */}
           <Text style={styles.title}>¿En qué temporada quieres sembrar?</Text>
 
           <Text style={styles.description}>
@@ -48,228 +101,402 @@ export default function TestTemporadaScreen({ onClose }) {
             orgánico para ofrecerte las mejores recomendaciones.
           </Text>
 
-          <SeasonCard
-            title="Primavera"
-            image="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80"
-          />
+          {/* Tarjetas de temporada */}
+          {seasons.map((season) => (
+            <Animated.View
+              key={season.id}
+              style={[
+                styles.seasonCardWrapper,
+                {
+                  transform: [{ 
+                    scale: selectedSeason === season.id ? scaleAnim : 1 
+                  }],
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.seasonCard,
+                  selectedSeason === season.id && styles.seasonCardSelected,
+                ]}
+                onPress={() => handleSelect(season.id)}
+                activeOpacity={0.8}
+              >
+                <ImageBackground
+                  source={{ uri: season.image }}
+                  style={styles.seasonImage}
+                  imageStyle={styles.seasonImageRadius}
+                >
+                  {selectedSeason === season.id && (
+                    <View style={styles.seasonOverlay}>
+                      <View style={styles.seasonCheck}>
+                        <Feather name="check" size={20} color="#ffffff" />
+                      </View>
+                    </View>
+                  )}
+                </ImageBackground>
 
-          <SeasonCard
-            title="Verano"
-            image="https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=900&q=80"
-          />
+                <View style={styles.seasonInfo}>
+                  <Text style={[
+                    styles.seasonTitle,
+                    selectedSeason === season.id && styles.seasonTitleSelected,
+                  ]}>
+                    {season.title}
+                  </Text>
+                  {selectedSeason === season.id && (
+                    <View style={styles.seasonBadge}>
+                      <Text style={styles.seasonBadgeText}>Seleccionado</Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
 
-          <SeasonCard
-            title="Otoño"
-            image="https://images.unsplash.com/photo-1506917728037-b6af01a7d403?auto=format&fit=crop&w=900&q=80"
-          />
+          {/* Botones */}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity 
+              style={[
+                styles.nextButton,
+                selectedSeason !== null && styles.nextButtonActive,
+              ]}
+              activeOpacity={0.8}
+              disabled={selectedSeason === null}
+            >
+              <Text style={[
+                styles.nextText,
+                selectedSeason !== null && styles.nextTextActive,
+              ]}>
+                Siguiente
+              </Text>
+              <Feather 
+                name="arrow-right" 
+                size={18} 
+                color={selectedSeason !== null ? '#ffffff' : '#8a9a8e'} 
+              />
+            </TouchableOpacity>
 
-          <SeasonCard
-            title="Invierno"
-            image="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80"
-          />
-
-          <TouchableOpacity activeOpacity={0.85} style={styles.nextButton}>
-            <Text style={styles.nextText}>Siguiente</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity activeOpacity={0.85} style={styles.prevButton}>
-            <Text style={styles.prevText}>Anterior</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.prevButton} activeOpacity={0.7}>
+              <Feather name="arrow-left" size={16} color="#4a6a4e" />
+              <Text style={styles.prevText}>Anterior</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
 
+        {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
-          <NavItem icon="home" label="Inicio" />
-          <View style={styles.navActive}>
-            <MaterialCommunityIcons name="help-circle-outline" size={21} color="#5a7c58" />
-            <Text style={styles.navActiveText}>Test</Text>
-          </View>
-          <NavItem icon="shopping-bag" label="Tienda" />
-          <NavItem icon="user" label="Perfil" />
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[
+                styles.navItem,
+                selectedTab === tab.id && styles.navItemActive
+              ]}
+              onPress={() => setSelectedTab(tab.id)}
+              activeOpacity={0.7}
+            >
+              <Feather 
+                name={tab.icon} 
+                size={20} 
+                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
+              />
+              <Text style={[
+                styles.navText,
+                selectedTab === tab.id && styles.navTextActive
+              ]}>
+                {tab.label}
+              </Text>
+              {selectedTab === tab.id && (
+                <View style={styles.navIndicator} />
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
     </SafeAreaView>
   );
 }
 
-function SeasonCard({ image, title }) {
-  return (
-    <View style={styles.seasonCard}>
-      <ImageBackground
-        source={{ uri: image }}
-        style={styles.seasonImage}
-        imageStyle={styles.seasonImageRadius}
-      />
-      <Text style={styles.seasonTitle}>{title}</Text>
-    </View>
-  );
-}
-
-function NavItem({ icon, label }) {
-  return (
-    <View style={styles.navItem}>
-      <Feather name={icon} size={21} color="#3d463c" />
-      <Text style={styles.navText}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f7faf7',
+    backgroundColor: '#f5faf7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f7faf7',
+    backgroundColor: '#f5faf7',
   },
   header: {
-    height: 66,
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#edf0ed',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  headerLogoContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
   },
   headerTitle: {
-    color: '#154f1f',
-    fontSize: 24,
-    fontWeight: '900',
-    marginLeft: 7,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f0f5f2',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollContent: {
-    paddingHorizontal: 34,
-    paddingTop: 32,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 100,
+  },
+  progressContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   progressTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  progressLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   progressText: {
-    color: '#537456',
     fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 1.1,
+    fontWeight: '600',
+    color: '#4a6a4e',
+    letterSpacing: 0.3,
   },
   percentText: {
-    color: '#154f1f',
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
+    color: '#0d8a4e',
   },
   progressBg: {
     height: 6,
-    backgroundColor: '#e2e6e2',
-    borderRadius: 5,
-    marginTop: 12,
+    backgroundColor: '#e8ede8',
+    borderRadius: 3,
+    marginTop: 10,
     overflow: 'hidden',
   },
   progressFill: {
     width: '66%',
     height: '100%',
-    backgroundColor: '#105219',
-    borderRadius: 5,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 3,
   },
   title: {
-    color: '#154f1f',
-    fontSize: 28,
-    fontWeight: '900',
-    lineHeight: 35,
+    fontSize: 24,
+    color: '#0a3a1a',
+    fontWeight: '700',
+    lineHeight: 32,
+    letterSpacing: 0.3,
     textAlign: 'center',
-    marginTop: 54,
+    marginBottom: 8,
   },
   description: {
-    color: '#5a6259',
-    fontSize: 15,
+    fontSize: 14,
+    color: '#4a6a4e',
     lineHeight: 22,
+    fontWeight: '400',
     textAlign: 'center',
-    fontWeight: '600',
-    marginTop: 18,
-    marginBottom: 34,
+    marginBottom: 24,
+  },
+  seasonCardWrapper: {
+    marginBottom: 12,
   },
   seasonCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  seasonCardSelected: {
+    borderColor: '#0d8a4e',
   },
   seasonImage: {
-    height: 320,
+    height: 180,
+    width: '100%',
   },
   seasonImageRadius: {
-    borderRadius: 6,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+  },
+  seasonOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(13, 138, 78, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  seasonCheck: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(13, 138, 78, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  seasonInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   seasonTitle: {
-    color: '#222822',
-    fontSize: 24,
-    fontWeight: '800',
-    marginTop: 14,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
+  },
+  seasonTitleSelected: {
+    color: '#0d8a4e',
+    fontWeight: '700',
+  },
+  seasonBadge: {
+    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.1)',
+  },
+  seasonBadgeText: {
+    fontSize: 10,
+    color: '#0d8a4e',
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  buttonsContainer: {
+    marginTop: 24,
+    gap: 8,
   },
   nextButton: {
-    height: 45,
-    borderRadius: 24,
-    backgroundColor: '#8da789',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 42,
+    height: 50,
+    borderRadius: 14,
+    backgroundColor: '#e8ede8',
+    gap: 8,
+  },
+  nextButtonActive: {
+    backgroundColor: '#0d8a4e',
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 5,
   },
   nextText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#8a9a8e',
+    letterSpacing: 0.3,
+  },
+  nextTextActive: {
     color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '900',
   },
   prevButton: {
-    height: 43,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: '#8da789',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 7,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.15)',
+    gap: 6,
+    backgroundColor: '#ffffff',
   },
   prevText: {
-    color: '#416340',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4a6a4e',
+    letterSpacing: 0.3,
   },
   bottomNav: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 82,
+    height: 65,
     backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     borderTopWidth: 1,
-    borderTopColor: '#edf0ed',
-  },
-  navActive: {
-    width: 80,
-    height: 44,
-    borderRadius: 24,
-    backgroundColor: '#c9efc5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navActiveText: {
-    fontSize: 12,
-    color: '#5a7c58',
-    fontWeight: '800',
+    borderTopColor: 'rgba(0,0,0,0.04)',
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   navItem: {
     alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    position: 'relative',
+  },
+  navItemActive: {
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
   },
   navText: {
-    fontSize: 12,
-    color: '#3d463c',
+    fontSize: 10,
+    color: '#6a8a6e',
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  navTextActive: {
+    color: '#0d8a4e',
     fontWeight: '700',
-    marginTop: 3,
+  },
+  navIndicator: {
+    position: 'absolute',
+    top: -1,
+    width: 16,
+    height: 2.5,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 2,
   },
 });

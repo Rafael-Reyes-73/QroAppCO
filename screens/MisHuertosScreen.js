@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,117 @@ import {
   ScrollView,
   TouchableOpacity,
   ImageBackground,
+  Animated,
+  Platform,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
+
 export default function MisHuertosScreen({ onClose }) {
+  const [selectedTab, setSelectedTab] = useState('catalog');
+  const [likedGardens, setLikedGardens] = useState({});
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleLike = (id) => {
+    setLikedGardens(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+    
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.3,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const gardens = [
+    {
+      id: 1,
+      image: 'https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?auto=format&fit=crop&w=900&q=80',
+      tag: 'En Proceso',
+      title: 'Tomate Roma',
+      cycle: 'Ciclo: 75 d',
+      planted: 'Sembrado el 15 de Oct',
+      phase: 'Crecimiento Vegetativo',
+      progress: '65%',
+      width: '65%',
+      taskIcon: 'water-outline',
+      task: 'Riego Próximo',
+      taskTime: 'Hoy, 6:00 PM',
+    },
+    {
+      id: 2,
+      image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=80',
+      tag: 'Floración',
+      title: 'Brócoli',
+      cycle: 'Ciclo: 40 d',
+      planted: 'Sembrado el 28 de Oct',
+      phase: 'Floración Temprana',
+      progress: '82%',
+      width: '82%',
+      taskIcon: 'content-cut',
+      task: 'Poda Necesaria',
+      taskTime: 'Mañana, 8:00 AM',
+    },
+    {
+      id: 3,
+      image: 'https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=900&q=80',
+      tag: 'Germinación',
+      title: 'Zanahoria Nantes',
+      cycle: 'Ciclo: 90 d',
+      planted: 'Sembrado el 05 de Nov',
+      phase: 'Germinación',
+      progress: '15%',
+      width: '15%',
+      taskIcon: 'flask-outline',
+      task: 'Nutrientes',
+      taskTime: 'En 3 días',
+      brown: true,
+    },
+  ];
+
+  const tabs = [
+    { id: 'home', icon: 'home', label: 'Home' },
+    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
+    { id: 'test', icon: 'help-circle', label: 'Test' },
+    { id: 'profile', icon: 'user', label: 'Perfil' },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
+      <StatusBar style="dark" backgroundColor="#f5faf7" />
 
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="leaf" size={20} color="#154f1f" />
-            <Text style={styles.headerTitle}>MyHuerto</Text>
+            <View style={styles.headerLogoContainer}>
+              <Image 
+                source={logoImage}
+                style={styles.headerLogo}
+                resizeMode="cover"
+              />
+            </View>
+            <Text style={styles.headerTitle}>Mis Huertos</Text>
           </View>
 
           <View style={styles.headerIcons}>
-            <Feather name="search" size={22} color="#3d463c" />
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="search" size={20} color="#0a3a1a" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={21} color="#154f1f" />
+              <Feather name="x" size={20} color="#0a3a1a" />
             </TouchableOpacity>
           </View>
         </View>
@@ -42,391 +133,405 @@ export default function MisHuertosScreen({ onClose }) {
             <Text style={styles.activeText}>12 Cultivos Activos</Text>
           </View>
 
-          <TouchableOpacity activeOpacity={0.85} style={styles.newButton}>
-            <Feather name="plus" size={19} color="#ffffff" />
+          <TouchableOpacity activeOpacity={0.8} style={styles.newButton}>
+            <Feather name="plus" size={18} color="#ffffff" />
             <Text style={styles.newButtonText}>Nuevo Cultivo</Text>
           </TouchableOpacity>
 
-          <GardenCard
-            image="https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?auto=format&fit=crop&w=900&q=80"
-            tag="En Proceso"
-            title="Tomate Roma"
-            cycle="Ciclo: 75 d"
-            planted="Sembrado el 15 de Oct"
-            phase="Crecimiento Vegetativo"
-            progress="65%"
-            width="65%"
-            taskIcon="water-outline"
-            task="Riego Próximo"
-            taskTime="Hoy, 6:00 PM"
-            liked
-          />
+          {gardens.map((garden) => (
+            <View key={garden.id} style={styles.cardWrapper}>
+              <View style={styles.card}>
+                <ImageBackground 
+                  source={{ uri: garden.image }} 
+                  style={styles.cardImage} 
+                  imageStyle={styles.cardImageRadius}
+                >
+                  <View style={styles.imageOverlay} />
 
-          <GardenCard
-            image="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=80"
-            tag="Floración"
-            title="Brocoli"
-            cycle="Ciclo: 40 d"
-            planted="Sembrado el 28 de Oct"
-            phase="Floración Temprana"
-            progress="82%"
-            width="82%"
-            taskIcon="content-cut"
-            task="Poda Necesaria"
-            taskTime="Mañana, 8:00 AM"
-          />
+                  <View style={[styles.tag, garden.brown && styles.tagBrown]}>
+                    <Text style={styles.tagText}>{garden.tag}</Text>
+                  </View>
 
-          <GardenCard
-            image="https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=900&q=80"
-            tag="Germinación"
-            title="Zanahoria Nantes"
-            cycle="Ciclo: 90 d"
-            planted="Sembrado el 05 de Nov"
-            phase="Germinación"
-            progress="15%"
-            width="15%"
-            taskIcon="flask-outline"
-            task="Nutrientes"
-            taskTime="En 3 días"
-            brown
-          />
+                  <TouchableOpacity 
+                    style={styles.heartCircle}
+                    onPress={() => handleLike(garden.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Animated.View style={{ transform: [{ scale: likedGardens[garden.id] ? scaleAnim : 1 }] }}>
+                      <Feather 
+                        name="heart" 
+                        size={20} 
+                        color={likedGardens[garden.id] ? "#d71920" : "#0a3a1a"} 
+                      />
+                    </Animated.View>
+                  </TouchableOpacity>
+                </ImageBackground>
+
+                <View style={styles.cardBody}>
+                  <View style={styles.titleRow}>
+                    <Text style={styles.cardTitle}>{garden.title}</Text>
+                    <Text style={styles.cycleText}>{garden.cycle}</Text>
+                  </View>
+
+                  <Text style={styles.planted}>{garden.planted}</Text>
+
+                  <View style={styles.progressHeader}>
+                    <Text style={styles.phase}>{garden.phase}</Text>
+                    <Text style={styles.progressNumber}>{garden.progress}</Text>
+                  </View>
+
+                  <View style={styles.progressBg}>
+                    <View style={[styles.progressFill, { width: garden.width }]} />
+                  </View>
+
+                  <View style={styles.taskBox}>
+                    <View style={styles.taskIconBox}>
+                      <MaterialCommunityIcons name={garden.taskIcon} size={20} color="#0a3a1a" />
+                    </View>
+
+                    <View style={styles.taskInfo}>
+                      <Text style={styles.taskLabel}>{garden.task}</Text>
+                      <Text style={styles.taskTime}>{garden.taskTime}</Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity activeOpacity={0.8} style={styles.followButton}>
+                    <Text style={styles.followText}>Ver Seguimiento</Text>
+                    <Feather name="arrow-right" size={14} color="#0d8a4e" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          ))}
         </ScrollView>
 
-        <TouchableOpacity activeOpacity={0.85} style={styles.cameraButton}>
-          <Feather name="aperture" size={30} color="#ffffff" />
+        {/* Botón Cámara */}
+        <TouchableOpacity activeOpacity={0.8} style={styles.cameraButton}>
+          <Feather name="camera" size={24} color="#ffffff" />
         </TouchableOpacity>
 
+        {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
-          <NavItem icon="home" label="Home" />
-          <View style={styles.navActive}>
-            <MaterialCommunityIcons name="sprout" size={21} color="#5a7c58" />
-            <Text style={styles.navActiveText}>Garden</Text>
-          </View>
-          <NavItem icon="shopping-bag" label="Store" />
-          <NavItem icon="user" label="Profile" />
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[
+                styles.navItem,
+                selectedTab === tab.id && styles.navItemActive
+              ]}
+              onPress={() => setSelectedTab(tab.id)}
+              activeOpacity={0.7}
+            >
+              <Feather 
+                name={tab.icon} 
+                size={20} 
+                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
+              />
+              <Text style={[
+                styles.navText,
+                selectedTab === tab.id && styles.navTextActive
+              ]}>
+                {tab.label}
+              </Text>
+              {selectedTab === tab.id && (
+                <View style={styles.navIndicator} />
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
     </SafeAreaView>
   );
 }
 
-function GardenCard({
-  image,
-  tag,
-  title,
-  cycle,
-  planted,
-  phase,
-  progress,
-  width,
-  taskIcon,
-  task,
-  taskTime,
-  liked,
-  brown,
-}) {
-  return (
-    <View style={styles.card}>
-      <ImageBackground source={{ uri: image }} style={styles.cardImage} imageStyle={styles.cardImageRadius}>
-        <View style={styles.imageDark} />
-
-        <View style={[styles.tag, brown && styles.tagBrown]}>
-          <Text style={styles.tagText}>{tag}</Text>
-        </View>
-
-        <View style={styles.heartCircle}>
-          <MaterialCommunityIcons
-            name={liked ? 'heart' : 'heart-outline'}
-            size={28}
-            color="#154f1f"
-          />
-        </View>
-      </ImageBackground>
-
-      <View style={styles.cardBody}>
-        <View style={styles.titleRow}>
-          <Text style={styles.cardTitle}>{title}</Text>
-          <Text style={styles.cycleText}>{cycle}</Text>
-        </View>
-
-        <Text style={styles.planted}>{planted}</Text>
-
-        <View style={styles.progressHeader}>
-          <Text style={styles.phase}>{phase}</Text>
-          <Text style={styles.progressNumber}>{progress}</Text>
-        </View>
-
-        <View style={styles.progressBg}>
-          <View style={[styles.progressFill, { width }]} />
-        </View>
-
-        <View style={styles.taskBox}>
-          <View style={styles.taskIconBox}>
-            <MaterialCommunityIcons name={taskIcon} size={24} color="#154f1f" />
-          </View>
-
-          <View>
-            <Text style={styles.taskLabel}>{task}</Text>
-            <Text style={styles.taskTime}>{taskTime}</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity activeOpacity={0.85} style={styles.followButton}>
-          <Text style={styles.followText}>Ver Seguimiento</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-function NavItem({ icon, label }) {
-  return (
-    <View style={styles.navItem}>
-      <Feather name={icon} size={21} color="#3d463c" />
-      <Text style={styles.navText}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f7faf7',
+    backgroundColor: '#f5faf7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f7faf7',
+    backgroundColor: '#f5faf7',
   },
   header: {
-    height: 66,
-    paddingHorizontal: 20,
-    backgroundColor: '#f7faf7',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  headerLogoContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
   },
   headerTitle: {
-    color: '#154f1f',
-    fontSize: 17,
-    fontWeight: '900',
-    marginLeft: 7,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  iconButton: {
+    padding: 4,
   },
   closeButton: {
-    marginLeft: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#eef4ed',
+    backgroundColor: '#f0f5f2',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: {
     paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 120,
   },
   title: {
-    fontSize: 30,
-    color: '#154f1f',
-    fontWeight: '900',
-    marginTop: 14,
+    fontSize: 28,
+    color: '#0a3a1a',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   activeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: 6,
+    marginBottom: 16,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#3d7d3c',
+    backgroundColor: '#0d8a4e',
     marginRight: 8,
   },
   activeText: {
-    color: '#4c554c',
-    fontSize: 16,
+    color: '#4a6a4e',
+    fontSize: 14,
+    fontWeight: '500',
   },
   newButton: {
     height: 44,
-    backgroundColor: '#105219',
-    borderRadius: 7,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 42,
+    marginBottom: 24,
+    gap: 8,
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   newButtonText: {
     color: '#ffffff',
     fontSize: 15,
-    fontWeight: '900',
-    marginLeft: 8,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  cardWrapper: {
+    marginBottom: 16,
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 10,
-    marginBottom: 18,
+    borderRadius: 14,
     overflow: 'hidden',
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 3,
   },
   cardImage: {
-    height: 192,
+    height: 180,
   },
   cardImageRadius: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
-  imageDark: {
+  imageOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.12)',
+    backgroundColor: 'rgba(0,0,0,0.08)',
   },
   tag: {
     position: 'absolute',
-    left: 16,
-    bottom: 15,
-    backgroundColor: '#77a86d',
+    left: 14,
+    bottom: 14,
+    backgroundColor: 'rgba(13, 138, 78, 0.9)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 13,
+    paddingVertical: 5,
+    borderRadius: 12,
   },
   tagBrown: {
-    backgroundColor: '#8f744b',
+    backgroundColor: 'rgba(139, 90, 43, 0.9)',
   },
   tagText: {
-    color: '#d9efd3',
-    fontSize: 12,
-    fontWeight: '900',
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   heartCircle: {
     position: 'absolute',
-    right: 16,
-    top: 15,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#eef4ed',
+    right: 14,
+    top: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardBody: {
-    padding: 24,
+    padding: 18,
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
   cardTitle: {
     flex: 1,
-    color: '#154f1f',
-    fontSize: 27,
-    fontWeight: '900',
+    fontSize: 20,
+    color: '#0a3a1a',
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
   cycleText: {
-    color: '#2f382f',
-    fontSize: 12,
-    fontWeight: '800',
-    marginTop: 5,
+    color: '#4a6a4e',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
   },
   planted: {
-    color: '#3e463e',
-    fontSize: 13,
-    fontWeight: '800',
-    marginTop: 8,
+    color: '#6a7a6e',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
   },
   progressHeader: {
-    marginTop: 22,
+    marginTop: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   phase: {
-    color: '#154f1f',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    color: '#0a3a1a',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   progressNumber: {
-    color: '#3f493f',
-    fontSize: 16,
+    color: '#4a6a4e',
+    fontSize: 14,
+    fontWeight: '600',
   },
   progressBg: {
-    height: 7,
-    borderRadius: 5,
-    backgroundColor: '#dfe4df',
-    marginTop: 9,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#e8ede8',
+    marginTop: 6,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 5,
-    backgroundColor: '#154f1f',
+    borderRadius: 3,
+    backgroundColor: '#0d8a4e',
   },
   taskBox: {
-    height: 59,
-    backgroundColor: '#f0f3f0',
-    borderRadius: 7,
-    marginTop: 24,
-    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f0f5f2',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 16,
+    gap: 12,
   },
   taskIconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 5,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+  },
+  taskInfo: {
+    flex: 1,
   },
   taskLabel: {
-    fontSize: 12,
-    color: '#545c54',
-    fontWeight: '900',
+    fontSize: 11,
+    color: '#4a6a4e',
+    fontWeight: '500',
   },
   taskTime: {
-    fontSize: 15,
-    color: '#154f1f',
-    fontWeight: '900',
-    marginTop: 2,
+    fontSize: 14,
+    color: '#0a3a1a',
+    fontWeight: '600',
+    marginTop: 1,
   },
   followButton: {
-    height: 46,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#105219',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(13, 138, 78, 0.2)',
+    marginTop: 16,
+    gap: 6,
   },
   followText: {
-    color: '#154f1f',
-    fontSize: 15,
-    fontWeight: '900',
+    color: '#0d8a4e',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   cameraButton: {
     position: 'absolute',
-    right: 22,
-    bottom: 100,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#105219',
+    right: 20,
+    bottom: 90,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#0d8a4e',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 12,
     elevation: 6,
   },
   bottomNav: {
@@ -434,34 +539,41 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 82,
+    height: 65,
     backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     borderTopWidth: 1,
-    borderTopColor: '#edf0ed',
-  },
-  navActive: {
-    width: 78,
-    height: 44,
-    borderRadius: 24,
-    backgroundColor: '#c9efc5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navActiveText: {
-    fontSize: 12,
-    color: '#5a7c58',
-    fontWeight: '800',
+    borderTopColor: 'rgba(0,0,0,0.04)',
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   navItem: {
     alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    position: 'relative',
+  },
+  navItemActive: {
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
   },
   navText: {
-    fontSize: 12,
-    color: '#3d463c',
+    fontSize: 10,
+    color: '#6a8a6e',
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  navTextActive: {
+    color: '#0d8a4e',
     fontWeight: '700',
-    marginTop: 3,
+  },
+  navIndicator: {
+    position: 'absolute',
+    top: -1,
+    width: 16,
+    height: 2.5,
+    backgroundColor: '#0d8a4e',
+    borderRadius: 2,
   },
 });

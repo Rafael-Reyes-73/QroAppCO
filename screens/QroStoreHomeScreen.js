@@ -1,3 +1,4 @@
+// screens/QroStoreScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -8,175 +9,307 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
+  FlatList,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
-export default function QroStoreHomeScreen() {
+const ProductCard = ({ name, rating, price, image, onPress }) => {
+  return (
+    <TouchableOpacity style={styles.productCard} onPress={onPress}>
+      <View style={styles.cardImage}>
+        <Feather name={image} size={32} color="#0d8a4e" />
+      </View>
+      <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
+      <View style={styles.cardFooter}>
+        <View style={styles.ratingContainer}>
+          <Feather name="star" size={12} color="#f5a623" fill="#f5a623" />
+          <Text style={styles.ratingText}>{rating}</Text>
+        </View>
+        <Text style={styles.cardPrice}>${price}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default function QroStoreScreen({ onClose, hideMenu = false }) {
+  const [activeTab, setActiveTab] = useState('Todo');
   const [searchText, setSearchText] = useState('');
 
-  const categories = ['Semillas', 'Fertilizantes', 'Herramientas', 'Macetos'];
+  const tabs = ['Todo', 'Semillas', 'Fertilizantes', 'Herramientas'];
+
+  const products = [
+    { id: 1, name: 'Semillas de Tomate', rating: '4.9', price: '12.50', category: 'Semillas', image: 'package' },
+    { id: 2, name: 'Fertilizante Orgánico', rating: '4.7', price: '24.99', category: 'Fertilizantes', image: 'leaf' },
+    { id: 3, name: 'Tijeras de Poda Pro', rating: '4.8', price: '35.00', category: 'Herramientas', image: 'scissors' },
+    { id: 4, name: 'Maceta de Fibra', rating: '4.5', price: '8.99', category: 'Herramientas', image: 'box' },
+    { id: 5, name: 'Semillas de Lechuga', rating: '4.6', price: '9.99', category: 'Semillas', image: 'package' },
+    { id: 6, name: 'Fertilizante Líquido', rating: '4.8', price: '18.50', category: 'Fertilizantes', image: 'droplet' },
+    { id: 7, name: 'Semillas de Calabaza', rating: '4.7', price: '14.99', category: 'Semillas', image: 'package' },
+    { id: 8, name: 'Tierra Abonada', rating: '4.4', price: '6.99', category: 'Fertilizantes', image: 'layers' },
+  ];
+
+  const filteredProducts = products.filter(product => {
+    const matchTab = activeTab === 'Todo' || product.category === activeTab;
+    const matchSearch = product.name.toLowerCase().includes(searchText.toLowerCase());
+    return matchTab && matchSearch;
+  });
+
+  const renderProduct = ({ item }) => (
+    <ProductCard
+      name={item.name}
+      rating={item.rating}
+      price={item.price}
+      image={item.image}
+      onPress={() => alert(`Ver detalle de ${item.name}`)}
+    />
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#0b3a1e" barStyle="light-content" />
-      <ScrollView style={styles.container}>
-        <Text style={styles.title}>QroStore</Text>
+      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
+      
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>QroStore</Text>
+          <TouchableOpacity style={styles.cartButton}>
+            <Feather name="shopping-bag" size={22} color="#0a3a1a" />
+          </TouchableOpacity>
+        </View>
 
+        {/* Buscador */}
         <View style={styles.searchContainer}>
+          <Feather name="search" size={18} color="#6a8a6e" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar semillas, abonos..."
-            placeholderTextColor="#8ab89a"
+            placeholder="Buscar productos..."
+            placeholderTextColor="#8a9a8e"
             value={searchText}
             onChangeText={setSearchText}
+            returnKeyType="search"
           />
-        </View>
-
-        <TouchableOpacity style={styles.banner}>
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerBrand}>GREEN EARTH GARDEN SUPPLY</Text>
-            <Text style={styles.bannerSubtitle}>NURTURE YOUR PLANTS, NATURALLY</Text>
-            <View style={styles.bannerOffer}>
-              <Text style={styles.bannerOfferText}>OFERTA DE VERANO</Text>
-              <View style={styles.bannerDiscount}>
-                <Text style={styles.bannerDiscountText}>Hasta 30% Dto.</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.bannerBtn}>
-              <Text style={styles.bannerBtnText}>Comprar ahora</Text>
+          {searchText !== '' && (
+            <TouchableOpacity onPress={() => setSearchText('')}>
+              <Feather name="x" size={18} color="#6a8a6e" />
             </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>Categorias</Text>
-          <View style={styles.categoriesGrid}>
-            {categories.map((category, index) => (
-              <TouchableOpacity key={index} style={styles.categoryCard}>
-                <View style={styles.categoryIcon}>
-                  <Text style={styles.categoryInitial}>{category.charAt(0)}</Text>
-                </View>
-                <Text style={styles.categoryName}>{category}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          )}
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.allCategoriesContainer}>
-          <Text style={styles.viewAllLabel}>Ver todo</Text>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Semillas</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Fertilizantes</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Herramientas</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Macetos</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Ofertas del Mes</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.categoryChip}><Text style={styles.categoryChipText}>Tiempo Limitado</Text></TouchableOpacity>
+        {/* Tabs */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabsContainer}
+          contentContainerStyle={styles.tabsContent}
+        >
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tab,
+                activeTab === tab && styles.tabActive,
+              ]}
+              onPress={() => setActiveTab(tab)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.tabTextActive,
+                ]}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
-        <View style={styles.productsSection}>
-          <View style={styles.productCard}>
-            <View style={styles.productImage}><Text style={styles.productLetter}>T</Text></View>
-            <Text style={styles.productName}>Semillas Tomate</Text>
-            <View style={styles.productPriceRow}>
-              <Text style={styles.productPrice}>$120.00</Text>
-              <Text style={styles.productOriginalPrice}>$150.00</Text>
+        {/* Lista de productos */}
+        <FlatList
+          data={filteredProducts}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.productRow}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.productList}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Feather name="search" size={48} color="#c8d4c8" />
+              <Text style={styles.emptyText}>No se encontraron productos</Text>
             </View>
-            <View style={styles.productRating}>
-              <Text style={styles.ratingText}>★ 4.8 (120)</Text>
-            </View>
-          </View>
-
-          <View style={styles.productCard}>
-            <View style={styles.productImage}><Text style={styles.productLetter}>T</Text></View>
-            <Text style={styles.productName}>Tijeras de Poda</Text>
-            <View style={styles.productPriceRow}>
-              <Text style={styles.productPrice}>$340.00</Text>
-              <Text style={styles.productOriginalPrice}>$420.00</Text>
-            </View>
-            <View style={styles.productRating}>
-              <Text style={styles.ratingText}>★ 4.9 (85)</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.recommendedSection}>
-          <Text style={styles.sectionTitle}>Recomendados para ti</Text>
-          <View style={styles.recommendedCard}>
-            <View style={styles.recommendedBadge}><Text style={styles.recommendedBadgeText}>TOP VENTAS</Text></View>
-            <View style={styles.recommendedContent}>
-              <View style={styles.recommendedImage}><Text style={styles.recommendedLetter}>F</Text></View>
-              <View style={styles.recommendedInfo}>
-                <Text style={styles.recommendedTitle}>Fertilizante Organico Pro</Text>
-                <Text style={styles.recommendedDescription}>Formula 100% natural disenada para potenciar el crecimiento...</Text>
-                <View style={styles.recommendedFooter}>
-                  <Text style={styles.recommendedPrice}>$285.00</Text>
-                  <TouchableOpacity style={styles.addBtn}><Text style={styles.addBtnText}>Agregar</Text></TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.viewCatalogBtn}>
-          <Text style={styles.viewCatalogText}>Ver Catalogo Completo →</Text>
-        </TouchableOpacity>
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f9f7' },
-  container: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
-  title: { fontSize: 28, fontWeight: '700', color: '#0b2a1a', marginBottom: 12 },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#c6e2d4', borderRadius: 60, paddingHorizontal: 16, paddingVertical: 4, marginBottom: 16 },
-  searchInput: { flex: 1, fontSize: 15, fontWeight: '500', color: '#0b2a1a', paddingVertical: 10 },
-  banner: { backgroundColor: '#0b3a1e', borderRadius: 20, padding: 20, marginBottom: 20 },
-  bannerContent: { alignItems: 'center' },
-  bannerBrand: { fontSize: 14, fontWeight: '700', color: '#b8dfc8', letterSpacing: 0.5, marginBottom: 4 },
-  bannerSubtitle: { fontSize: 11, fontWeight: '500', color: '#8ab89a', letterSpacing: 1, marginBottom: 8 },
-  bannerOffer: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  bannerOfferText: { fontSize: 20, fontWeight: '700', color: 'white' },
-  bannerDiscount: { backgroundColor: '#e8a838', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 40, marginLeft: 8 },
-  bannerDiscountText: { fontSize: 14, fontWeight: '700', color: '#0b2a1a' },
-  bannerBtn: { backgroundColor: 'white', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 60 },
-  bannerBtnText: { fontSize: 14, fontWeight: '600', color: '#0b3a1e' },
-  categoriesSection: { marginBottom: 12 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#0b2a1a', marginBottom: 12 },
-  categoriesGrid: { flexDirection: 'row', justifyContent: 'space-between' },
-  categoryCard: { alignItems: 'center', backgroundColor: '#fff', paddingVertical: 12, paddingHorizontal: 8, borderRadius: 16, borderWidth: 1, borderColor: '#e8f5ee', width: '23%' },
-  categoryIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#e6f5ed', justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
-  categoryInitial: { fontSize: 18, fontWeight: '700', color: '#1a7540' },
-  categoryName: { fontSize: 11, fontWeight: '500', color: '#0b2a1a' },
-  allCategoriesContainer: { flexDirection: 'row', marginBottom: 16 },
-  viewAllLabel: { fontSize: 14, fontWeight: '600', color: '#0b2a1a', marginRight: 8 },
-  categoryChip: { backgroundColor: '#eef7f2', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 40, borderWidth: 1, borderColor: '#c6e2d4', marginRight: 8 },
-  categoryChipText: { fontSize: 12, fontWeight: '500', color: '#4a7a5e' },
-  productsSection: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  productCard: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#e8f5ee' },
-  productImage: { width: 60, height: 60, borderRadius: 12, backgroundColor: '#e6f5ed', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  productLetter: { fontSize: 24, fontWeight: '700', color: '#1a7540' },
-  productName: { fontSize: 13, fontWeight: '600', color: '#0b2a1a', textAlign: 'center', marginBottom: 4 },
-  productPriceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  productPrice: { fontSize: 14, fontWeight: '700', color: '#0b3a1e' },
-  productOriginalPrice: { fontSize: 12, color: '#8ab89a', textDecorationLine: 'line-through' },
-  productRating: { flexDirection: 'row', alignItems: 'center' },
-  ratingText: { fontSize: 12, color: '#4a7a5e' },
-  recommendedSection: { marginBottom: 16 },
-  recommendedCard: { backgroundColor: '#fff', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#e8f5ee', position: 'relative' },
-  recommendedBadge: { position: 'absolute', top: 12, right: 12, backgroundColor: '#e8a838', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 4 },
-  recommendedBadgeText: { fontSize: 9, fontWeight: '700', color: '#0b2a1a' },
-  recommendedContent: { flexDirection: 'row', gap: 12 },
-  recommendedImage: { width: 70, height: 70, borderRadius: 12, backgroundColor: '#e6f5ed', justifyContent: 'center', alignItems: 'center' },
-  recommendedLetter: { fontSize: 28, fontWeight: '700', color: '#1a7540' },
-  recommendedInfo: { flex: 1 },
-  recommendedTitle: { fontSize: 15, fontWeight: '600', color: '#0b2a1a', marginBottom: 4 },
-  recommendedDescription: { fontSize: 12, color: '#4a7a5e', lineHeight: 16, marginBottom: 8 },
-  recommendedFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  recommendedPrice: { fontSize: 16, fontWeight: '700', color: '#0b3a1e' },
-  addBtn: { backgroundColor: '#0b3a1e', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 40 },
-  addBtnText: { color: 'white', fontSize: 13, fontWeight: '600' },
-  viewCatalogBtn: { paddingVertical: 14, alignItems: 'center' },
-  viewCatalogText: { fontSize: 15, fontWeight: '600', color: '#0b3a1e' },
-  bottomSpacer: { height: 20 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5faf7',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5faf7',
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#0a3a1a',
+    letterSpacing: 0.3,
+  },
+  cartButton: {
+    position: 'relative',
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 2,
+    marginBottom: 16,
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#0a3a1a',
+    paddingVertical: 10,
+  },
+  tabsContainer: {
+    marginBottom: 16,
+  },
+  tabsContent: {
+    paddingHorizontal: 2,
+  },
+  tab: {
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.12)',
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tabActive: {
+    backgroundColor: '#0d8a4e',
+    borderColor: '#0d8a4e',
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#4a6a4e',
+    letterSpacing: 0.2,
+  },
+  tabTextActive: {
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  productList: {
+    paddingBottom: 20,
+  },
+  productRow: {
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  productCard: {
+    width: '48%',
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.06)',
+  },
+  cardImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.08)',
+  },
+  cardName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0a3a1a',
+    textAlign: 'center',
+    marginBottom: 6,
+    width: '100%',
+    letterSpacing: 0.2,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 2,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4a6a4e',
+  },
+  cardPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0d8a4e',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 60,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: '#6a8a6e',
+    marginTop: 12,
+    fontWeight: '500',
+  },
 });
