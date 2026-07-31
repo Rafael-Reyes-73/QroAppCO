@@ -1,7 +1,8 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
-export default function TabsLayout() {
+export default function QroStoreLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -33,27 +34,23 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Inicio',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
         }}
-      />
-      <Tabs.Screen
-        name="catalogo"
-        options={{
-          title: 'Catálogo',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid" size={size} color={color} />
-          ),
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault(); // Evita la navegación por defecto
+            router.replace('/(tabs)'); // Navega al inicio principal
+          },
         }}
       />
       <Tabs.Screen
-        name="qroplay"
+        name="tienda"
         options={{
-          title: 'QroPlay',
+          title: 'QroStore',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="play" size={size} color={color} />
+            <Ionicons name="storefront" size={size} color={color} />
           ),
         }}
       />
@@ -64,6 +61,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault(); // Evita la navegación por defecto
+            router.replace('/(tabs)/perfil'); // Navega al perfil principal
+          },
         }}
       />
     </Tabs>

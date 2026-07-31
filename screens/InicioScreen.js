@@ -28,6 +28,7 @@ export default function InicioScreen({ router }) {
   const [likedCards, setLikedCards] = useState({});
   const [activeTab, setActiveTab] = useState('explorar');
   const [unreadCount, setUnreadCount] = useState(3);
+  const [cartCount, setCartCount] = useState(2);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const logoScale = useRef(new Animated.Value(1)).current;
 
@@ -73,16 +74,13 @@ export default function InicioScreen({ router }) {
         router.push('/(tabs)/catalogo');
         break;
       case 'Test':
-        router.push('/(tabs)/test');
-        break;
-      case 'QroStore':
-        router.push('/(tabs)/qrostore');
-        break;
-      case 'QroPlay':
-        router.push('/(tabs)/qroplay');
+        router.push('/test');
         break;
       case 'Ubicacion':
         router.push('/ubicacion');
+        break;
+      case 'QroPlay':
+        router.push('/(tabs)/qroplay');
         break;
       case 'Eventos':
         Alert.alert('Eventos', 'Funcion de eventos proximamente disponible');
@@ -92,13 +90,13 @@ export default function InicioScreen({ router }) {
     }
   };
 
+  // ✅ ELIMINADA QroStore del grid
   const ecoCards = [
     { id: 1, icon: 'sprout', title: 'Catalogo', subtitle: '640 Variedades', color: ['#e8f5e9', '#c8e6c9'] },
     { id: 2, icon: 'help-circle', title: 'Test', subtitle: 'Identifica', color: ['#fff3e0', '#ffe0b2'] },
     { id: 3, icon: 'map-marker', title: 'Ubicacion', subtitle: 'Queretaro', color: ['#e0f2f1', '#b2dfdb'] },
-    { id: 4, icon: 'shopping', title: 'QroStore', subtitle: 'Ofertas', color: ['#e8f5e9', '#a5d6a7'] },
-    { id: 5, icon: 'play', title: 'QroPlay', subtitle: 'Videos', color: ['#f3e5f5', '#e1bee7'] },
-    { id: 6, icon: 'calendar', title: 'Eventos', subtitle: 'Proximos', color: ['#e8f5e9', '#c8e6c9'] },
+    { id: 4, icon: 'play', title: 'QroPlay', subtitle: 'Videos', color: ['#f3e5f5', '#e1bee7'] },
+    { id: 5, icon: 'calendar', title: 'Eventos', subtitle: 'Proximos', color: ['#e8f5e9', '#c8e6c9'] },
   ];
 
   const recommendations = [
@@ -134,7 +132,7 @@ export default function InicioScreen({ router }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header premium con navegación a notificaciones */}
+          {/* Header premium con carrito y notificaciones */}
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.logoContainer}
@@ -152,15 +150,27 @@ export default function InicioScreen({ router }) {
               </Animated.View>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => router.push('/notificaciones')}
-            >
-              <Feather name="bell" size={20} color="#0a3a1a" />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationText}>{unreadCount}</Text>
-              </View>
-            </TouchableOpacity>
+            <View style={styles.headerActions}>
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={() => router.push('/qrostore')}
+              >
+                <Feather name="shopping-cart" size={20} color="#0a3a1a" />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{cartCount}</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={() => router.push('/notificaciones')}
+              >
+                <Feather name="bell" size={20} color="#0a3a1a" />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Bienvenida premium */}
@@ -372,6 +382,11 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 4,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   iconButton: {
     width: 40,
     height: 40,
@@ -386,7 +401,7 @@ const styles = StyleSheet.create({
     elevation: 1,
     position: 'relative',
   },
-  notificationBadge: {
+  badge: {
     position: 'absolute',
     top: 6,
     right: 6,
@@ -399,7 +414,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ffffff',
   },
-  notificationText: {
+  badgeText: {
     color: 'white',
     fontSize: 9,
     fontWeight: '700',
