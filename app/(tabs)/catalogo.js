@@ -1,6 +1,5 @@
-// app/(tabs)/catalogo.js
-import QroStoreHomeScreen from '../../screens/QroStoreHomeScreen';
+import CatalogScreen from '../../screens/CatalogScreen';
 
-export default function CatalogoTab() {
-  return <QroStoreHomeScreen />;
+export default function Catalogo() {
+  return <CatalogScreen />;
 }

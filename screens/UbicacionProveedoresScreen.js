@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
+  ScrollView,  // ← ESTO ES LO QUE FALTABA
   TouchableOpacity,
   TextInput,
   Image,
@@ -155,36 +156,6 @@ export default function UbicacionProveedoresScreen({ onClose }) {
           <TouchableOpacity style={styles.listButton} activeOpacity={0.8}>
             <Feather name="list" size={24} color="#ffffff" />
           </TouchableOpacity>
-        </View>
-
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.navItem,
-                selectedTab === tab.id && styles.navItemActive
-              ]}
-              onPress={() => setSelectedTab(tab.id)}
-              activeOpacity={0.7}
-            >
-              <Feather 
-                name={tab.icon} 
-                size={20} 
-                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
-              />
-              <Text style={[
-                styles.navText,
-                selectedTab === tab.id && styles.navTextActive
-              ]}>
-                {tab.label}
-              </Text>
-              {selectedTab === tab.id && (
-                <View style={styles.navIndicator} />
-              )}
-            </TouchableOpacity>
-          ))}
         </View>
       </View>
     </SafeAreaView>
@@ -473,47 +444,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 6,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
   },
 });

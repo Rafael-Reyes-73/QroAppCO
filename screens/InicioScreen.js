@@ -12,18 +12,22 @@ import {
   Dimensions,
   Platform,
   Image,
+  StatusBar,
+  Alert,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
-export default function InicioScreen({ onClose }) {
+export default function InicioScreen({ router }) {
   const [searchFocused, setSearchFocused] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('home');
   const [likedCards, setLikedCards] = useState({});
+  const [activeTab, setActiveTab] = useState('explorar');
+  const [unreadCount, setUnreadCount] = useState(3);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const logoScale = useRef(new Animated.Value(1)).current;
 
@@ -62,13 +66,39 @@ export default function InicioScreen({ onClose }) {
     ]).start();
   };
 
+  const handleCardPress = (cardTitle) => {
+    console.log('Navegando a:', cardTitle);
+    switch(cardTitle) {
+      case 'Catalogo':
+        router.push('/(tabs)/catalogo');
+        break;
+      case 'Test':
+        router.push('/(tabs)/test');
+        break;
+      case 'QroStore':
+        router.push('/(tabs)/qrostore');
+        break;
+      case 'QroPlay':
+        router.push('/(tabs)/qroplay');
+        break;
+      case 'Ubicacion':
+        router.push('/ubicacion');
+        break;
+      case 'Eventos':
+        Alert.alert('Eventos', 'Funcion de eventos proximamente disponible');
+        break;
+      default:
+        Alert.alert('Funcion', 'Proximamente disponible');
+    }
+  };
+
   const ecoCards = [
-    { id: 1, icon: 'sprout', title: 'Catálogo', subtitle: '640 Variedades', color: '#c9efc5' },
-    { id: 2, icon: 'help-circle', title: 'Test', subtitle: 'Identifica', color: '#ffe1b7' },
-    { id: 3, icon: 'map-marker', title: 'Ubicación', subtitle: 'Querétaro', color: '#b8e6b8' },
-    { id: 4, icon: 'shopping', title: 'QroStore', subtitle: 'Ofertas', color: '#8fd48f' },
-    { id: 5, icon: 'play', title: 'QroPlay', subtitle: 'Videos', color: '#a8dba8' },
-    { id: 6, icon: 'calendar', title: 'Eventos', subtitle: 'Próximos', color: '#c9efc5' },
+    { id: 1, icon: 'sprout', title: 'Catalogo', subtitle: '640 Variedades', color: ['#e8f5e9', '#c8e6c9'] },
+    { id: 2, icon: 'help-circle', title: 'Test', subtitle: 'Identifica', color: ['#fff3e0', '#ffe0b2'] },
+    { id: 3, icon: 'map-marker', title: 'Ubicacion', subtitle: 'Queretaro', color: ['#e0f2f1', '#b2dfdb'] },
+    { id: 4, icon: 'shopping', title: 'QroStore', subtitle: 'Ofertas', color: ['#e8f5e9', '#a5d6a7'] },
+    { id: 5, icon: 'play', title: 'QroPlay', subtitle: 'Videos', color: ['#f3e5f5', '#e1bee7'] },
+    { id: 6, icon: 'calendar', title: 'Eventos', subtitle: 'Proximos', color: ['#e8f5e9', '#c8e6c9'] },
   ];
 
   const recommendations = [
@@ -76,14 +106,14 @@ export default function InicioScreen({ onClose }) {
       id: 1,
       title: 'Siembra de Tomates',
       category: 'TEMPORADA',
-      text: 'Ideal para el clima de esta semana en Querétaro.',
+      text: 'Ideal para el clima de esta semana en Queretaro.',
       image: 'https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=900&q=80',
     },
     {
       id: 2,
       title: 'Cuida tu Albahaca',
       category: 'CUIDADO',
-      text: 'Mantén humedad constante todo el año.',
+      text: 'Manten humedad constante todo el ano.',
       image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=80',
     },
     {
@@ -95,23 +125,16 @@ export default function InicioScreen({ onClose }) {
     },
   ];
 
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" backgroundColor="#f5faf7" />
-
+      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
+      
       <View style={styles.container}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header con logo */}
+          {/* Header premium con navegación a notificaciones */}
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.logoContainer}
@@ -120,43 +143,40 @@ export default function InicioScreen({ onClose }) {
             >
               <Animated.View style={{ transform: [{ scale: logoScale }] }}>
                 <View style={styles.logoWrapper}>
-                  <View style={styles.logoImageContainer}>
-                    <Image 
-                      source={logoImage}
-                      style={styles.logoImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-                  <View style={styles.logoTextContainer}>
-                    <Text style={styles.logoTitle}>QroHuerto</Text>
-                    <Text style={styles.logoSubtitle}>Tu huerto inteligente</Text>
-                  </View>
+                  <Image 
+                    source={logoImage}
+                    style={styles.logoImage}
+                    resizeMode="contain"
+                  />
                 </View>
               </Animated.View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.notificationButton}>
-              <Feather name="bell" size={22} color="#0a3a1a" />
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => router.push('/notificaciones')}
+            >
+              <Feather name="bell" size={20} color="#0a3a1a" />
               <View style={styles.notificationBadge}>
-                <Text style={styles.notificationText}>3</Text>
+                <Text style={styles.notificationText}>{unreadCount}</Text>
               </View>
             </TouchableOpacity>
           </View>
 
-          {/* Mensaje de bienvenida */}
+          {/* Bienvenida premium */}
           <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeText}>Bienvenido de vuelta</Text>
-            <Text style={styles.welcomeSubtext}>¿Qué deseas explorar hoy?</Text>
+            <Text style={styles.welcomeText}>Hola, agricultor</Text>
+            <Text style={styles.welcomeSubtext}>¿Que deseas cultivar hoy?</Text>
           </View>
 
-          {/* Barra de búsqueda */}
+          {/* Search bar premium */}
           <View style={[
             styles.searchBox,
             searchFocused && styles.searchBoxFocused
           ]}>
-            <Feather name="search" size={20} color="#6a8a6e" />
+            <Feather name="search" size={18} color="#6a8a6e" />
             <TextInput
-              placeholder="Buscar plantas, guías o productos..."
+              placeholder="Buscar plantas, guias o productos..."
               placeholderTextColor="#8a9a8e"
               style={styles.searchInput}
               onFocus={() => setSearchFocused(true)}
@@ -170,37 +190,39 @@ export default function InicioScreen({ onClose }) {
             )}
           </View>
 
-          {/* Banner principal */}
+          {/* Banner premium con gradiente */}
           <TouchableOpacity activeOpacity={0.9}>
-            <ImageBackground
-              source={{
-                uri: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
-              }}
+            <LinearGradient
+              colors={['#0d8a4e', '#0a7a3e']}
               style={styles.banner}
-              imageStyle={styles.bannerRadius}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <View style={styles.bannerOverlay}>
-                <View style={styles.bannerTextBox}>
+              <View style={styles.bannerContent}>
+                <View style={styles.bannerTagContainer}>
+                  <View style={styles.bannerTagDot} />
                   <Text style={styles.bannerTag}>TEMPORADA</Text>
-                  <Text style={styles.bannerTitle}>Época de Siembra</Text>
-                  <Text style={styles.bannerText}>
-                    Descubre qué plantar en tu huerto esta temporada
-                  </Text>
-
-                  <View style={styles.bannerButton}>
-                    <View style={styles.bannerButtonGradient}>
-                      <Text style={styles.bannerButtonText}>Ver Guía</Text>
-                      <Feather name="arrow-right" size={16} color="#0a3a1a" />
-                    </View>
+                </View>
+                <Text style={styles.bannerTitle}>Epoca de Siembra</Text>
+                <Text style={styles.bannerText}>
+                  Descubre que plantar en tu huerto esta temporada
+                </Text>
+                <View style={styles.bannerButton}>
+                  <View style={styles.bannerButtonInner}>
+                    <Text style={styles.bannerButtonText}>Ver Guia</Text>
+                    <Feather name="arrow-right" size={16} color="#0a3a1a" />
                   </View>
                 </View>
               </View>
-            </ImageBackground>
+            </LinearGradient>
           </TouchableOpacity>
 
-          {/* Sección de exploración */}
+          {/* Sección de exploración premium */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Explorar</Text>
+            <View style={styles.sectionHeaderLeft}>
+              <View style={styles.sectionIconLine} />
+              <Text style={styles.sectionTitle}>Explorar</Text>
+            </View>
             <TouchableOpacity>
               <Text style={styles.seeAll}>Ver todo</Text>
             </TouchableOpacity>
@@ -211,25 +233,36 @@ export default function InicioScreen({ onClose }) {
               <TouchableOpacity 
                 key={card.id} 
                 style={styles.ecoCardWrapper}
-                activeOpacity={0.8}
+                activeOpacity={0.85}
+                onPress={() => handleCardPress(card.title)}
               >
-                <View style={styles.ecoCard}>
-                  <View style={[styles.ecoIcon, { backgroundColor: card.color }]}>
+                <LinearGradient
+                  colors={card.color}
+                  style={styles.ecoCard}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <View style={styles.ecoIconContainer}>
                     <MaterialCommunityIcons name={card.icon} size={24} color="#0a3a1a" />
                   </View>
                   <View style={styles.ecoTextContainer}>
                     <Text style={styles.ecoTitle}>{card.title}</Text>
-                    {card.subtitle && <Text style={styles.ecoSubtitle}>{card.subtitle}</Text>}
+                    <Text style={styles.ecoSubtitle}>{card.subtitle}</Text>
                   </View>
-                  <Feather name="chevron-right" size={16} color="#8a9a8e" />
-                </View>
+                  <View style={styles.ecoArrow}>
+                    <Feather name="chevron-right" size={16} color="#4a6a4e" />
+                  </View>
+                </LinearGradient>
               </TouchableOpacity>
             ))}
           </View>
 
-          {/* Recomendaciones */}
+          {/* Recomendaciones premium */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recomendaciones</Text>
+            <View style={styles.sectionHeaderLeft}>
+              <View style={styles.sectionIconLine} />
+              <Text style={styles.sectionTitle}>Recomendaciones</Text>
+            </View>
             <TouchableOpacity>
               <Text style={styles.seeAll}>Ver todo</Text>
             </TouchableOpacity>
@@ -252,6 +285,10 @@ export default function InicioScreen({ onClose }) {
                     style={styles.recoImage} 
                     imageStyle={styles.recoImageRadius}
                   >
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0,0,0,0.3)']}
+                      style={styles.recoImageOverlay}
+                    />
                     <TouchableOpacity 
                       style={styles.heartCircle}
                       onPress={() => handleLike(item.id)}
@@ -260,27 +297,21 @@ export default function InicioScreen({ onClose }) {
                       <Animated.View style={{ transform: [{ scale: likedCards[item.id] ? scaleAnim : 1 }] }}>
                         <Feather 
                           name="heart" 
-                          size={18} 
+                          size={16} 
                           color={likedCards[item.id] ? "#d71920" : "#ffffff"} 
                         />
                       </Animated.View>
                     </TouchableOpacity>
-                    {likedCards[item.id] && (
-                      <View style={styles.likedBadge}>
-                        <Feather name="heart" size={10} color="#ffffff" />
-                      </View>
-                    )}
+                    <View style={styles.recoCategoryBadge}>
+                      <Text style={styles.recoCategoryBadgeText}>{item.category}</Text>
+                    </View>
                   </ImageBackground>
 
                   <View style={styles.recoBody}>
-                    <View style={styles.recoCategoryContainer}>
-                      <View style={styles.recoCategoryDot} />
-                      <Text style={styles.recoCategory}>{item.category}</Text>
-                    </View>
                     <Text style={styles.recoTitle}>{item.title}</Text>
                     <Text style={styles.recoText}>{item.text}</Text>
                     <TouchableOpacity style={styles.recoButton}>
-                      <Text style={styles.recoButtonText}>Leer más</Text>
+                      <Text style={styles.recoButtonText}>Leer mas</Text>
                       <Feather name="arrow-right" size={14} color="#0d8a4e" />
                     </TouchableOpacity>
                   </View>
@@ -291,36 +322,6 @@ export default function InicioScreen({ onClose }) {
 
           <View style={styles.footerSpacer} />
         </ScrollView>
-
-        {/* Navegación inferior */}
-        <View style={styles.bottomNav}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.navItem,
-                selectedTab === tab.id && styles.navItemActive
-              ]}
-              onPress={() => setSelectedTab(tab.id)}
-              activeOpacity={0.7}
-            >
-              <Feather 
-                name={tab.icon} 
-                size={20} 
-                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
-              />
-              <Text style={[
-                styles.navText,
-                selectedTab === tab.id && styles.navTextActive
-              ]}>
-                {tab.label}
-              </Text>
-              {selectedTab === tab.id && (
-                <View style={styles.navIndicator} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -337,9 +338,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 100,
+    paddingTop: Platform.OS === 'ios' ? 8 : 12,
+    paddingBottom: 10,
   },
+  // Header premium
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -352,52 +354,42 @@ const styles = StyleSheet.create({
   logoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  logoImageContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
-  },
-  logoImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-  },
-  logoTextContainer: {
-    marginLeft: 12,
-  },
-  logoTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0a3a1a',
-    letterSpacing: 0.3,
-  },
-  logoSubtitle: {
-    fontSize: 11,
-    color: '#4a7a5e',
-    fontWeight: '500',
-    letterSpacing: 0.2,
-  },
-  notificationButton: {
-    position: 'relative',
-    padding: 8,
-    borderRadius: 10,
     backgroundColor: '#ffffff',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.02,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 1,
+    alignSelf: 'flex-start',
+  },
+  logoImage: {
+    width: 80,
+    height: 28,
+    borderRadius: 4,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
+    position: 'relative',
   },
   notificationBadge: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: 6,
+    right: 6,
     backgroundColor: '#d71920',
     width: 18,
     height: 18,
@@ -405,20 +397,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#f5faf7',
+    borderColor: '#ffffff',
   },
   notificationText: {
     color: 'white',
     fontSize: 9,
     fontWeight: '700',
   },
+  // Bienvenida premium
   welcomeContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   welcomeText: {
-    fontSize: 22,
+    fontSize: 24,
     color: '#0a3a1a',
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
   welcomeSubtext: {
@@ -428,85 +421,98 @@ const styles = StyleSheet.create({
     marginTop: 2,
     letterSpacing: 0.2,
   },
+  // Search bar premium
   searchBox: {
-    height: 50,
+    height: 48,
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.02,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.04)',
   },
   searchBoxFocused: {
     borderWidth: 2,
     borderColor: '#0d8a4e',
-    shadowOpacity: 0.08,
+    shadowColor: '#0d8a4e',
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 12,
-    fontSize: 15,
+    marginLeft: 10,
+    fontSize: 14,
     color: '#0a2a1a',
+    paddingVertical: 8,
+    fontWeight: '500',
   },
   searchClear: {
     padding: 4,
   },
+  // Banner premium
   banner: {
-    height: 190,
-    marginBottom: 28,
+    height: 170,
+    borderRadius: 16,
+    marginBottom: 24,
     overflow: 'hidden',
-    borderRadius: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  bannerRadius: {
-    borderRadius: 14,
-  },
-  bannerOverlay: {
+  bannerContent: {
     flex: 1,
-    backgroundColor: 'rgba(13, 138, 78, 0.88)',
-  },
-  bannerTextBox: {
-    flex: 1,
-    padding: 24,
+    padding: 20,
     justifyContent: 'center',
+  },
+  bannerTagContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  bannerTagDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#7ddfa0',
   },
   bannerTag: {
     color: '#7ddfa0',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1.5,
-    marginBottom: 6,
   },
   bannerTitle: {
     color: '#ffffff',
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '900',
-    lineHeight: 34,
+    lineHeight: 30,
     letterSpacing: 0.5,
   },
   bannerText: {
     color: 'rgba(255,255,255,0.9)',
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     marginTop: 4,
   },
   bannerButton: {
-    marginTop: 14,
+    marginTop: 12,
     alignSelf: 'flex-start',
   },
-  bannerButtonGradient: {
+  bannerButtonInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 18,
     borderRadius: 20,
     backgroundColor: '#7ddfa0',
@@ -514,17 +520,30 @@ const styles = StyleSheet.create({
   },
   bannerButtonText: {
     color: '#0a3a1a',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
+    letterSpacing: 0.3,
   },
+  // Secciones
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
   },
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  sectionIconLine: {
+    width: 3,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#0d8a4e',
+  },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#0a3a1a',
     fontWeight: '700',
     letterSpacing: 0.3,
@@ -532,8 +551,10 @@ const styles = StyleSheet.create({
   seeAll: {
     color: '#0d8a4e',
     fontWeight: '600',
-    fontSize: 13,
+    fontSize: 12,
+    letterSpacing: 0.3,
   },
+  // Grid premium
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -544,8 +565,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   ecoCard: {
-    height: 120,
-    backgroundColor: '#ffffff',
+    height: 110,
     borderRadius: 14,
     padding: 14,
     justifyContent: 'space-between',
@@ -555,10 +575,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  ecoIcon: {
-    width: 40,
-    height: 40,
+  ecoIconContainer: {
+    width: 36,
+    height: 36,
     borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -567,150 +588,108 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ecoTitle: {
-    fontSize: 17,
+    fontSize: 15,
     color: '#0a3a1a',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   ecoSubtitle: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#4a6a4a',
     fontWeight: '500',
-    marginTop: 2,
+    marginTop: 1,
   },
+  ecoArrow: {
+    alignSelf: 'flex-end',
+    opacity: 0.4,
+  },
+  // Recomendaciones premium
   recoScroll: {
     paddingVertical: 4,
     paddingRight: 4,
   },
   recoCardWrapper: {
-    marginRight: 16,
+    marginRight: 14,
   },
   recoCard: {
-    width: 270,
+    width: 260,
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 12,
+    elevation: 4,
   },
   recoImage: {
     height: 120,
   },
   recoImageRadius: {
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  recoImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   heartCircle: {
     position: 'absolute',
     right: 12,
-    top: 10,
+    top: 12,
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    backdropFilter: 'blur(4px)',
   },
-  likedBadge: {
+  recoCategoryBadge: {
     position: 'absolute',
     left: 12,
-    top: 10,
-    backgroundColor: 'rgba(215, 25, 32, 0.85)',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 6,
+    top: 12,
+    backgroundColor: 'rgba(13, 138, 78, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  recoCategoryBadgeText: {
+    color: '#ffffff',
+    fontSize: 8,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   recoBody: {
     padding: 14,
   },
-  recoCategoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  recoCategoryDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#0d8a4e',
-    marginRight: 6,
-  },
-  recoCategory: {
-    color: '#0d8a4e',
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
   recoTitle: {
     color: '#0a3a1a',
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '700',
     marginTop: 2,
   },
   recoText: {
     marginTop: 4,
     color: '#6a7a6e',
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
   },
   recoButton: {
     marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   recoButtonText: {
     color: '#0d8a4e',
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: 11,
+    letterSpacing: 0.3,
   },
   footerSpacer: {
-    height: 20,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
+    height: 10,
   },
 });

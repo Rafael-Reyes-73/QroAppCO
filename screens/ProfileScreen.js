@@ -1,4 +1,3 @@
-// screens/ProfileScreen.js
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -11,15 +10,19 @@ import {
   Image,
   Animated,
   Platform,
+  Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function ProfileScreen({ onClose, hideMenu = false }) {
+  const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePress = () => {
+  const handlePress = (action) => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 0.95,
@@ -32,12 +35,36 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
         useNativeDriver: true,
       }),
     ]).start();
+
+    if (action === 'logout') {
+      Alert.alert(
+        'Cerrar Sesión',
+        '¿Estás seguro de que deseas cerrar sesión?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { 
+            text: 'Cerrar Sesión', 
+            style: 'destructive',
+            onPress: () => {
+              // Aquí irá la lógica de logout
+              router.replace('/login');
+            }
+          }
+        ]
+      );
+    }
   };
 
   const menuItems = [
     { id: 1, icon: 'clock', label: 'Historial de Compras', color: '#0a3a1a' },
     { id: 2, icon: 'settings', label: 'Configuración', color: '#0a3a1a' },
-    { id: 3, icon: 'log-out', label: 'Cerrar Sesión', color: '#d71920' },
+    { id: 3, icon: 'log-out', label: 'Cerrar Sesión', color: '#d71920', action: 'logout' },
+  ];
+
+  const statsData = [
+    { number: '12', label: 'Cultivos Activos' },
+    { number: '148', label: 'Cosechas Totales' },
+    { number: '2,450', label: 'Puntos Eco' },
   ];
 
   return (
@@ -45,21 +72,23 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
       <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
       
       <View style={styles.container}>
-        {/* Header */}
+        {/* Header premium */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
+            <View style={styles.logoWrapper}>
               <Image 
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logoImage}
+                resizeMode="contain"
               />
             </View>
             <Text style={styles.headerTitle}>Perfil</Text>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Feather name="x" size={20} color="#0a3a1a" />
-          </TouchableOpacity>
+          {onClose && (
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Feather name="x" size={20} color="#0a3a1a" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <ScrollView 
@@ -67,11 +96,21 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Perfil Header */}
-          <View style={styles.profileHeader}>
+          {/* Perfil Header con gradiente */}
+          <LinearGradient
+            colors={['#ffffff', '#f8fbf9']}
+            style={styles.profileHeader}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+          >
             <View style={styles.avatarContainer}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>JM</Text>
+              <View style={styles.avatarWrapper}>
+                <LinearGradient
+                  colors={['#0d8a4e', '#0a7a3e']}
+                  style={styles.avatarGradient}
+                >
+                  <Text style={styles.avatarText}>JM</Text>
+                </LinearGradient>
               </View>
               <TouchableOpacity style={styles.editAvatarButton}>
                 <Feather name="camera" size={14} color="#ffffff" />
@@ -83,38 +122,39 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
               <Text style={styles.editProfileText}>Editar Perfil</Text>
               <Feather name="arrow-right" size={14} color="#0d8a4e" />
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
 
           {/* Stats */}
           <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Cultivos Activos</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>148</Text>
-              <Text style={styles.statLabel}>Cosechas Totales</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>2,450</Text>
-              <Text style={styles.statLabel}>Puntos Eco</Text>
-            </View>
+            {statsData.map((stat, index) => (
+              <React.Fragment key={index}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>{stat.number}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+                {index < statsData.length - 1 && <View style={styles.statDivider} />}
+              </React.Fragment>
+            ))}
           </View>
 
           {/* Gestión de Cuenta */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Gestión de Cuenta</Text>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIconLine} />
+              <Text style={styles.sectionTitle}>Gestión de Cuenta</Text>
+            </View>
             
             {menuItems.map((item, index) => (
               <React.Fragment key={item.id}>
                 <TouchableOpacity 
                   style={styles.menuItem}
-                  onPress={handlePress}
+                  onPress={() => handlePress(item.action)}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.menuIconContainer}>
+                  <View style={[
+                    styles.menuIconContainer,
+                    item.id === 3 && styles.menuIconContainerDanger
+                  ]}>
                     <Feather 
                       name={item.icon} 
                       size={18} 
@@ -158,35 +198,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5faf7',
   },
+  // Header premium
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
+    borderBottomColor: 'rgba(13, 138, 78, 0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
+  logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
+    borderColor: 'rgba(13, 138, 78, 0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
+  logoImage: {
+    width: 80,
+    height: 28,
+    borderRadius: 4,
   },
   headerTitle: {
     fontSize: 20,
@@ -210,9 +256,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 40,
   },
+  // Perfil Header
   profileHeader: {
     alignItems: 'center',
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     paddingVertical: 24,
     paddingHorizontal: 20,
@@ -222,31 +268,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.04)',
   },
   avatarContainer: {
     position: 'relative',
     marginBottom: 12,
   },
-  avatar: {
+  avatarWrapper: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    padding: 2,
+    backgroundColor: '#ffffff',
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  avatarGradient: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#0d8a4e',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(13, 138, 78, 0.2)',
   },
   avatarText: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700',
     color: 'white',
     letterSpacing: 1,
   },
   editAvatarButton: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
+    bottom: 2,
+    right: 2,
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -291,6 +348,7 @@ const styles = StyleSheet.create({
     color: '#0d8a4e',
     letterSpacing: 0.2,
   },
+  // Stats
   statsContainer: {
     flexDirection: 'row',
     backgroundColor: '#ffffff',
@@ -302,6 +360,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.04)',
   },
   statItem: {
     flex: 1,
@@ -324,6 +384,7 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: 'rgba(13, 138, 78, 0.08)',
   },
+  // Sección
   section: {
     backgroundColor: '#ffffff',
     borderRadius: 14,
@@ -335,14 +396,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.04)',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 10,
+  },
+  sectionIconLine: {
+    width: 3,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: '#0d8a4e',
   },
   sectionTitle: {
     fontSize: 11,
     fontWeight: '600',
     color: '#4a6a4e',
     letterSpacing: 0.8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
     textTransform: 'uppercase',
   },
   menuItem: {
@@ -360,6 +434,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  menuIconContainerDanger: {
+    backgroundColor: 'rgba(215, 25, 32, 0.06)',
+  },
   menuText: {
     flex: 1,
     fontSize: 15,
@@ -376,6 +453,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(13, 138, 78, 0.06)',
     marginHorizontal: 12,
   },
+  // Versión
   versionContainer: {
     flexDirection: 'row',
     alignItems: 'center',

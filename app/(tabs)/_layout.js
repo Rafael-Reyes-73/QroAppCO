@@ -1,42 +1,76 @@
-// app/(tabs)/_layout.js
 import { Tabs } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
-import { Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          const icons = {
-            index: 'home',
-            catalogo: 'grid',
-            test: 'help-circle',
-            perfil: 'user',
-          };
-          return <Feather name={icons[route.name]} size={size} color={color} />;
-        },
+      screenOptions={{
+        headerShown: true,
         tabBarActiveTintColor: '#0d8a4e',
-        tabBarInactiveTintColor: '#6a8a6e',
-        tabBarStyle: {
-          height: 65,
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(0,0,0,0.04)',
-          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+        tabBarInactiveTintColor: '#8a9a8e',
+        headerStyle: {
+          backgroundColor: '#f5faf7',
         },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-          marginTop: 2,
+        headerTitleStyle: {
+          color: '#0a3a1a',
+          fontWeight: '600',
         },
-        headerShown: false,
-      })}
+      }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="catalogo" options={{ title: 'Catálogo' }} />
-      <Tabs.Screen name="test" options={{ title: 'Test' }} />
-      <Tabs.Screen name="perfil" options={{ title: 'Perfil' }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Inicio',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="catalogo"
+        options={{
+          title: 'Catálogo',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="grid" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="qrostore"
+        options={{
+          title: 'QroStore',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="storefront" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="qroplay"
+        options={{
+          title: 'QroPlay',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="play" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="test"
+        options={{
+          title: 'Test',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="checkbox" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

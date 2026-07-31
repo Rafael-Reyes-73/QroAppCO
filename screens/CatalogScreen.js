@@ -11,15 +11,19 @@ import {
   Image,
   Animated,
   Platform,
+  FlatList,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { products, categories } from '../data/products';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 // ============================================
-// COMPONENTE CARD DE VIDEO/TUTORIAL
+// COMPONENTE CARD DE PRODUCTO
 // ============================================
-const VideoCard = ({ category, date, title, description, onPress }) => {
+const ProductCard = ({ product, onPress }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
@@ -38,25 +42,57 @@ const VideoCard = ({ category, date, title, description, onPress }) => {
     onPress();
   };
 
+  const getTypeColor = (tipo) => {
+    const colors = {
+      verdura: ['#e8f5e9', '#c8e6c9'],
+      fruta: ['#fff3e0', '#ffe0b2'],
+      hierba: ['#e0f2f1', '#b2dfdb'],
+      flor: ['#f3e5f5', '#e1bee7'],
+      árbol: ['#e8eaf6', '#c5cae9'],
+    };
+    return colors[tipo] || ['#f5f5f5', '#e0e0e0'];
+  };
+
+  const getTypeIcon = (tipo) => {
+    const icons = {
+      verdura: 'leaf',
+      fruta: 'fruit-cherries',
+      hierba: 'sprout',
+      flor: 'flower',
+      árbol: 'tree',
+    };
+    return icons[tipo] || 'leaf';
+  };
+
   return (
-    <Animated.View style={[styles.videoCardWrapper, { transform: [{ scale: scaleAnim }] }]}>
-      <TouchableOpacity style={styles.videoCard} onPress={handlePress} activeOpacity={0.8}>
-        <View style={styles.videoHeader}>
-          <View style={styles.categoryBadge}>
-            <Feather name="play" size={10} color="#0d8a4e" />
-            <Text style={styles.categoryBadgeText}>{category}</Text>
+    <Animated.View style={[styles.productCardWrapper, { transform: [{ scale: scaleAnim }] }]}>
+      <TouchableOpacity style={styles.productCard} onPress={handlePress} activeOpacity={0.8}>
+        <LinearGradient
+          colors={getTypeColor(product.tipo)}
+          style={styles.productImageContainer}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <MaterialCommunityIcons name={getTypeIcon(product.tipo)} size={42} color="#0d8a4e" />
+          <View style={styles.typeBadge}>
+            <Text style={styles.typeBadgeText}>{product.tipo}</Text>
           </View>
-          <View style={styles.dateContainer}>
-            <Feather name="clock" size={12} color="#8a9a8e" />
-            <Text style={styles.videoDate}>{date}</Text>
+          <View style={styles.statusBadge}>
+            <View style={[styles.statusDot, { backgroundColor: product.estado ? '#4caf50' : '#f44336' }]} />
+            <Text style={styles.statusText}>{product.estado ? 'Disponible' : 'Agotado'}</Text>
           </View>
-        </View>
-        <Text style={styles.videoTitle}>{title}</Text>
-        <Text style={styles.videoDescription}>{description}</Text>
-        <View style={styles.videoFooter}>
-          <View style={styles.playButton}>
-            <Feather name="play-circle" size={16} color="#0d8a4e" />
-            <Text style={styles.playText}>Ver tutorial</Text>
+        </LinearGradient>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>{product.nombre}</Text>
+          <Text style={styles.productVariety}>{product.temporada}</Text>
+          <View style={styles.productFooter}>
+            <View style={styles.productMeta}>
+              <Feather name="calendar" size={12} color="#8a9a8e" />
+              <Text style={styles.productMetaText}>{product.temporada}</Text>
+            </View>
+            <View style={styles.detailButton}>
+              <Feather name="arrow-right" size={16} color="#0d8a4e" />
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -65,100 +101,82 @@ const VideoCard = ({ category, date, title, description, onPress }) => {
 };
 
 // ============================================
-// PANTALLA PRINCIPAL
+// PANTALLA PRINCIPAL - CATÁLOGO
 // ============================================
-export default function QroPlayScreen() {
+export default function CatalogScreen() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('Todo');
   const [searchText, setSearchText] = useState('');
-  const [selectedTab, setSelectedTab] = useState('catalog');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
 
-  const categories = ['Todo', 'Compostaje', 'Plagas', 'Riego', 'Suelo', 'Siembra'];
-
-  const videos = [
-    { 
-      id: 1, 
-      category: 'SUELO', 
-      date: 'Hace 2 días', 
-      title: 'Secretos del Suelo: Preparación Vital', 
-      description: 'Aprende a nutrir tu tierra desde cero utilizando solo componentes naturales.',
-      categoryFilter: 'Suelo'
-    },
-    { 
-      id: 2, 
-      category: 'RIEGO', 
-      date: 'Hace 4 días', 
-      title: 'Sistemas de Riego Eficientes', 
-      description: 'Descubre cómo ahorrar agua y mantener tus plantas hidratadas.',
-      categoryFilter: 'Riego'
-    },
-    { 
-      id: 3, 
-      category: 'COMPOSTAJE', 
-      date: 'Hace 1 semana', 
-      title: 'Compostaje en Casa: Guía Práctica', 
-      description: 'Transforma tus residuos orgánicos en abono de alta calidad.',
-      categoryFilter: 'Compostaje'
-    },
-    { 
-      id: 4, 
-      category: 'PLAGAS', 
-      date: 'Hace 2 semanas', 
-      title: 'Control Natural de Plagas', 
-      description: 'Métodos orgánicos para proteger tus cultivos sin químicos.',
-      categoryFilter: 'Plagas'
-    },
-  ];
-
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
-  const filteredVideos = videos.filter(video => {
-    const matchCategory = selectedCategory === 'Todo' || video.categoryFilter === selectedCategory;
-    const matchSearch = video.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                       video.description.toLowerCase().includes(searchText.toLowerCase());
+  const filteredProducts = products.filter(product => {
+    const matchCategory = selectedCategory === 'Todo' || product.tipo === selectedCategory.toLowerCase();
+    const matchSearch = product.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
+                       product.descripcion.toLowerCase().includes(searchText.toLowerCase());
     return matchCategory && matchSearch;
   });
+
+  const handleProductPress = (productId) => {
+    router.push(`/producto/${productId}`);
+  };
+
+  const renderProduct = ({ item }) => (
+    <ProductCard 
+      product={item} 
+      onPress={() => handleProductPress(item.id)}
+    />
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
       
       <View style={styles.container}>
-        {/* Header */}
+        {/* Header premium */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
+          <TouchableOpacity style={styles.logoContainer} activeOpacity={1}>
+            <View style={styles.logoWrapper}>
               <Image 
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logoImage}
+                resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>QroPlay</Text>
-          </View>
-          <TouchableOpacity style={styles.notificationButton}>
-            <Feather name="bell" size={20} color="#0a3a1a" />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationText}>2</Text>
-            </View>
           </TouchableOpacity>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="shopping-cart" size={20} color="#0a3a1a" />
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="bell" size={20} color="#0a3a1a" />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationText}>2</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <Text style={styles.subtitle}>Tutoriales y Consejos</Text>
+        <Text style={styles.subtitle}>Encuentra las mejores semillas y plantas</Text>
 
-        {/* Buscador */}
-        <View style={styles.searchContainer}>
+        {/* Search bar premium */}
+        <View style={[
+          styles.searchBox,
+          searchFocused && styles.searchBoxFocused
+        ]}>
           <Feather name="search" size={18} color="#6a8a6e" />
           <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar tutoriales o consejos..."
+            placeholder="Buscar plantas, semillas o variedades..."
             placeholderTextColor="#8a9a8e"
+            style={styles.searchInput}
             value={searchText}
             onChangeText={setSearchText}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             returnKeyType="search"
           />
           {searchText !== '' && (
@@ -200,70 +218,48 @@ export default function QroPlayScreen() {
           ))}
         </ScrollView>
 
-        {/* Lista de videos */}
-        <ScrollView 
-          style={styles.videoList} 
+        {/* Contador de productos */}
+        <View style={styles.productCounter}>
+          <Text style={styles.productCounterText}>
+            {filteredProducts.length} productos disponibles
+          </Text>
+          <TouchableOpacity 
+            style={styles.viewToggle}
+            onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+          >
+            <Feather 
+              name={viewMode === 'grid' ? 'grid' : 'list'} 
+              size={16} 
+              color="#0d8a4e" 
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Lista de productos */}
+        <FlatList
+          data={filteredProducts}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={viewMode === 'grid' ? 2 : 1}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.videoListContent}
-        >
-          {filteredVideos.length > 0 ? (
-            filteredVideos.map((video) => (
-              <VideoCard
-                key={video.id}
-                category={video.category}
-                date={video.date}
-                title={video.title}
-                description={video.description}
-                onPress={() => alert(`Ver video: ${video.title}`)}
-              />
-            ))
-          ) : (
+          contentContainerStyle={styles.productsList}
+          ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconContainer}>
-                <Feather name="video-off" size={40} color="#c8d4c8" />
+                <Feather name="package" size={40} color="#c8d4c8" />
               </View>
-              <Text style={styles.emptyText}>No se encontraron videos</Text>
+              <Text style={styles.emptyText}>No se encontraron productos</Text>
               <Text style={styles.emptySubtext}>Prueba con otra categoría o búsqueda</Text>
             </View>
-          )}
-        </ScrollView>
-
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.navItem,
-                selectedTab === tab.id && styles.navItemActive
-              ]}
-              onPress={() => setSelectedTab(tab.id)}
-              activeOpacity={0.7}
-            >
-              <Feather 
-                name={tab.icon} 
-                size={20} 
-                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
-              />
-              <Text style={[
-                styles.navText,
-                selectedTab === tab.id && styles.navTextActive
-              ]}>
-                {tab.label}
-              </Text>
-              {selectedTab === tab.id && (
-                <View style={styles.navIndicator} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+          }
+        />
       </View>
     </SafeAreaView>
   );
 }
 
 // ============================================
-// ESTILOS
+// ESTILOS PREMIUM
 // ============================================
 const styles = StyleSheet.create({
   safeArea: {
@@ -275,6 +271,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5faf7',
     paddingHorizontal: 20,
   },
+  // Header premium
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -282,52 +279,83 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  headerLeft: {
+  logoContainer: {
+    flex: 1,
+  },
+  logoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    backgroundColor: '#ffffff',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
+    alignSelf: 'flex-start',
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+  logoImage: {
+    width: 80,
+    height: 28,
+    borderRadius: 4,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
-  },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0a3a1a',
-    letterSpacing: 0.3,
-  },
-  notificationButton: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
     position: 'relative',
-    padding: 4,
   },
-  notificationBadge: {
+  cartBadge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
+    top: 6,
+    right: 6,
     backgroundColor: '#d71920',
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#f5faf7',
+    borderColor: '#ffffff',
+  },
+  cartBadgeText: {
+    color: 'white',
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: '#d71920',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
   },
   notificationText: {
     color: 'white',
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: '700',
   },
   subtitle: {
@@ -337,32 +365,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     letterSpacing: 0.2,
   },
-  searchContainer: {
+  // Search bar premium
+  searchBox: {
+    height: 48,
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 2,
     marginBottom: 16,
-    gap: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.02,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.04)',
+  },
+  searchBoxFocused: {
+    borderWidth: 2,
+    borderColor: '#0d8a4e',
+    shadowColor: '#0d8a4e',
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
+    marginLeft: 10,
     fontSize: 14,
-    color: '#0a3a1a',
-    paddingVertical: 10,
-    fontWeight: '400',
+    color: '#0a2a1a',
+    paddingVertical: 8,
+    fontWeight: '500',
   },
+  // Categorías
   categoriesContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   categoriesContent: {
     paddingHorizontal: 2,
@@ -400,83 +438,119 @@ const styles = StyleSheet.create({
     backgroundColor: '#0d8a4e',
     borderRadius: 1,
   },
-  videoList: {
-    flex: 1,
-  },
-  videoListContent: {
-    paddingBottom: 100,
-  },
-  videoCardWrapper: {
+  productCounter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
-  videoCard: {
+  productCounterText: {
+    fontSize: 12,
+    color: '#8a9a8e',
+    fontWeight: '400',
+  },
+  viewToggle: {
+    padding: 4,
+  },
+  // Grid de productos
+  productsList: {
+    paddingBottom: 100,
+  },
+  productCardWrapper: {
+    flex: 1,
+    margin: 6,
+  },
+  productCard: {
     backgroundColor: '#ffffff',
     borderRadius: 14,
-    padding: 16,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
   },
-  videoHeader: {
+  productImageContainer: {
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(13, 138, 78, 0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  typeBadgeText: {
+    color: '#ffffff',
+    fontSize: 8,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  statusBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    gap: 4,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusText: {
+    color: '#ffffff',
+    fontSize: 7,
+    fontWeight: '500',
+  },
+  productInfo: {
+    padding: 12,
+  },
+  productName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0a3a1a',
+  },
+  productVariety: {
+    fontSize: 12,
+    color: '#6a7a6e',
+    fontWeight: '400',
+    marginTop: 1,
+    textTransform: 'capitalize',
+  },
+  productFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 8,
   },
-  categoryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  categoryBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#0d8a4e',
-    letterSpacing: 0.5,
-  },
-  dateContainer: {
+  productMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  videoDate: {
+  productMetaText: {
     fontSize: 11,
     color: '#8a9a8e',
-    fontWeight: '400',
+    textTransform: 'capitalize',
   },
-  videoTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0a3a1a',
-    marginBottom: 4,
-    letterSpacing: 0.2,
-  },
-  videoDescription: {
-    fontSize: 13,
-    color: '#4a6a4e',
-    lineHeight: 20,
-    fontWeight: '400',
-  },
-  videoFooter: {
-    marginTop: 12,
-    flexDirection: 'row',
-  },
-  playButton: {
-    flexDirection: 'row',
+  detailButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-  },
-  playText: {
-    fontSize: 12,
-    color: '#0d8a4e',
-    fontWeight: '500',
-    letterSpacing: 0.2,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -501,47 +575,5 @@ const styles = StyleSheet.create({
     color: '#8a9a8e',
     fontWeight: '400',
     marginTop: 4,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
   },
 });

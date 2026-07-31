@@ -219,36 +219,6 @@ export default function ActividadesScreen({ onClose }) {
             </Animated.View>
           ))}
         </ScrollView>
-
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.navItem,
-                selectedTab === tab.id && styles.navItemActive
-              ]}
-              onPress={() => setSelectedTab(tab.id)}
-              activeOpacity={0.7}
-            >
-              <Feather 
-                name={tab.icon} 
-                size={20} 
-                color={selectedTab === tab.id ? '#0d8a4e' : '#6a8a6e'} 
-              />
-              <Text style={[
-                styles.navText,
-                selectedTab === tab.id && styles.navTextActive
-              ]}>
-                {tab.label}
-              </Text>
-              {selectedTab === tab.id && (
-                <View style={styles.navIndicator} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
       </View>
     </SafeAreaView>
   );

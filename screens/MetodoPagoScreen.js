@@ -160,35 +160,6 @@ export default function MetodoPagoScreen({ onClose }) {
           <Text style={styles.confirmText}>Confirmar y Continuar</Text>
           <Feather name="arrow-right" size={18} color="#ffffff" />
         </TouchableOpacity>
-
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.navItem,
-                tab.id === 'catalog' && styles.navItemActive,
-              ]}
-              activeOpacity={0.7}
-            >
-              <Feather 
-                name={tab.icon} 
-                size={20} 
-                color={tab.id === 'catalog' ? '#0d8a4e' : '#6a8a6e'} 
-              />
-              <Text style={[
-                styles.navText,
-                tab.id === 'catalog' && styles.navTextActive,
-              ]}>
-                {tab.label}
-              </Text>
-              {tab.id === 'catalog' && (
-                <View style={styles.navIndicator} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
       </View>
     </SafeAreaView>
   );
