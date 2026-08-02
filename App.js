@@ -26,6 +26,9 @@ import NotificacionesScreen from './screens/NotificacionesScreen';
 import UbicacionProveedoresScreen from './screens/UbicacionProveedoresScreen';
 import TestMunicipioScreen from './screens/TestMunicipioScreen';
 import TestTemporadaScreen from './screens/TestTemporadaScreen';
+import QroStoreScreen from './screens/QroStoreScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import CarritoScreen from './screens/CarritoScreen';
 
 const pantallas = {
   inicio: InicioScreen,
@@ -42,6 +45,9 @@ const pantallas = {
   ubicacionProveedores: UbicacionProveedoresScreen,
   testMunicipio: TestMunicipioScreen,
   testTemporada: TestTemporadaScreen,
+  qrostore: QroStoreScreen,
+  perfil: ProfileScreen,
+  carrito: CarritoScreen,
 };
 
 const opciones = [
@@ -157,6 +163,30 @@ const opciones = [
     imagen:
       'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
   },
+  {
+    id: 'qrostore',
+    titulo: 'QroStore',
+    descripcion: 'Tienda de productos para huerto',
+    icono: 'shopping-bag',
+    imagen:
+      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 'perfil',
+    titulo: 'Perfil',
+    descripcion: 'Información del usuario y configuración',
+    icono: 'user',
+    imagen:
+      'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 'carrito',
+    titulo: 'Carrito',
+    descripcion: 'Productos agregados al carrito',
+    icono: 'shopping-cart',
+    imagen:
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=80',
+  },
 ];
 
 export default function App() {
@@ -164,7 +194,13 @@ export default function App() {
 
   if (pantallaActiva) {
     const Pantalla = pantallas[pantallaActiva];
-    return <Pantalla onClose={() => setPantallaActiva(null)} />;
+
+    return (
+      <Pantalla
+        onClose={() => setPantallaActiva(null)}
+        onNavigate={(screenName) => setPantallaActiva(screenName)}
+      />
+    );
   }
 
   return (

@@ -3,222 +3,315 @@ import {
   View,
   Text,
   StyleSheet,
+  SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
+  Image,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ onClose, onNavigate }) {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#0b3a1e" barStyle="light-content" />
-      <ScrollView style={styles.container}>
-        {/* Perfil Header */}
-        <View style={styles.profileHeader}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>JM</Text>
+      <StatusBar style="dark" />
+
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Feather name="user" size={24} color="#154f1f" />
+            <Text style={styles.headerTitle}>Perfil</Text>
+          </View>
+
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Feather name="x" size={21} color="#154f1f" />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.profileCard}>
+            <Image
+              source={{
+                uri: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+              }}
+              style={styles.avatar}
+            />
+
+            <Text style={styles.name}>Carlos</Text>
+            <Text style={styles.email}>carlos.qrohuerto@email.com</Text>
+
+            <View style={styles.badge}>
+              <MaterialCommunityIcons name="sprout" size={17} color="#5a7c58" />
+              <Text style={styles.badgeText}>Usuario QroHuerto</Text>
             </View>
           </View>
-          <Text style={styles.userName}>Javier Montes</Text>
-          <Text style={styles.userEmail}>javier.montes@ecoemail.com</Text>
-          <TouchableOpacity style={styles.editProfileBtn}>
-            <Text style={styles.editProfileText}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Stats */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Cultivos</Text>
-            <Text style={styles.statLabel}>Activos</Text>
+          <View style={styles.statsRow}>
+            <StatCard value="12" label="Cultivos" />
+            <StatCard value="8" label="Favoritos" />
+            <StatCard value="4" label="Pedidos" />
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>148</Text>
-            <Text style={styles.statLabel}>Cosechas</Text>
-            <Text style={styles.statLabel}>Totales</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>2,450</Text>
-            <Text style={styles.statLabel}>Puntos Eco</Text>
-          </View>
-        </View>
 
-        {/* Gestión de Cuenta */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>GESTIÓN DE CUENTA</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Historial de Compras</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.menuDivider} />
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Configuración</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.menuDivider} />
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={[styles.menuText, styles.logoutText]}>Cerrar Sesión</Text>
-          </TouchableOpacity>
-        </View>
+          <Text style={styles.sectionTitle}>Opciones</Text>
 
-        {/* Versión */}
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>SemillasApp v2.4 – Cuidando el futuro</Text>
+          <OptionItem icon="shopping-bag" title="Mis pedidos" text="Consulta tus compras recientes" />
+          <OptionItem icon="credit-card" title="Métodos de pago" text="Administra tus tarjetas guardadas" />
+          <OptionItem icon="bell" title="Notificaciones" text="Configura tus avisos del huerto" />
+          <OptionItem icon="settings" title="Configuración" text="Preferencias generales de la app" />
+
+          <TouchableOpacity activeOpacity={0.85} style={styles.logoutButton}>
+            <Feather name="log-out" size={20} color="#c71920" />
+            <Text style={styles.logoutText}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('inicio')}>
+            <Feather name="home" size={21} color="#3d463c" />
+            <Text style={styles.navText}>Inicio</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('favoritos')}>
+            <Feather name="heart" size={21} color="#3d463c" />
+            <Text style={styles.navText}>Favoritos</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('qrostore')}>
+            <Feather name="shopping-bag" size={21} color="#3d463c" />
+            <Text style={styles.navText}>Tienda</Text>
+          </TouchableOpacity>
+
+          <View style={styles.navActive}>
+            <Feather name="user" size={21} color="#5a7c58" />
+            <Text style={styles.navActiveText}>Perfil</Text>
+          </View>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
+  );
+}
+
+function StatCard({ value, label }) {
+  return (
+    <View style={styles.statCard}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function OptionItem({ icon, title, text }) {
+  return (
+    <View style={styles.optionItem}>
+      <View style={styles.optionIcon}>
+        <Feather name={icon} size={21} color="#154f1f" />
+      </View>
+
+      <View style={styles.optionTextBox}>
+        <Text style={styles.optionTitle}>{title}</Text>
+        <Text style={styles.optionText}>{text}</Text>
+      </View>
+
+      <Feather name="chevron-right" size={22} color="#9aa59a" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f9f7',
+    backgroundColor: '#f7faf7',
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    backgroundColor: '#f7faf7',
   },
-
-  // ===== PERFIL HEADER =====
-  profileHeader: {
-    alignItems: 'center',
+  header: {
+    height: 66,
     backgroundColor: '#ffffff',
-    borderRadius: 20,
-    paddingVertical: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#edf0ed',
     paddingHorizontal: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e8f0ec',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  avatarContainer: {
-    marginBottom: 12,
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: '#154f1f',
+    fontSize: 25,
+    fontWeight: '900',
+    marginLeft: 9,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#eef4ed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 118,
+  },
+  profileCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#0b3a1e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#c6e2d4',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    marginBottom: 14,
   },
-  avatarText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: 'white',
+  name: {
+    color: '#154f1f',
+    fontSize: 29,
+    fontWeight: '900',
   },
-  userName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0b2a1a',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#4a7a5e',
-    marginBottom: 12,
-  },
-  editProfileBtn: {
-    backgroundColor: '#e6f5ed',
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: '#b8dfc8',
-  },
-  editProfileText: {
-    fontSize: 13,
+  email: {
+    color: '#5a6259',
+    fontSize: 15,
+    marginTop: 5,
     fontWeight: '600',
-    color: '#0b3a1e',
   },
-
-  // ===== STATS =====
-  statsContainer: {
+  badge: {
+    marginTop: 15,
+    backgroundColor: '#c9efc5',
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    paddingVertical: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e8f0ec',
-  },
-  statItem: {
-    flex: 1,
     alignItems: 'center',
   },
-  statNumber: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0b3a1e',
+  badgeText: {
+    color: '#5a7c58',
+    fontSize: 13,
+    fontWeight: '900',
+    marginLeft: 6,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 26,
+  },
+  statCard: {
+    width: '31%',
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  statValue: {
+    color: '#154f1f',
+    fontSize: 25,
+    fontWeight: '900',
   },
   statLabel: {
-    fontSize: 11,
-    color: '#4a7a5e',
-    marginTop: 1,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#e8f5ee',
-  },
-
-  // ===== SECCIÓN GESTIÓN =====
-  section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e8f0ec',
+    color: '#5a6259',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 4,
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4a7a5e',
-    letterSpacing: 0.5,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    color: '#154f1f',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 14,
   },
-  menuItem: {
+  optionItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 14,
   },
-  menuText: {
+  optionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: '#c9efc5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  optionTextBox: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0b2a1a',
+  },
+  optionTitle: {
+    color: '#154f1f',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  optionText: {
+    color: '#5a6259',
+    fontSize: 13,
+    marginTop: 3,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f5eeee',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 14,
   },
   logoutText: {
-    color: '#d9534f',
+    color: '#c71920',
+    fontSize: 15,
+    fontWeight: '900',
+    marginLeft: 8,
   },
-  menuDivider: {
-    height: 1,
-    backgroundColor: '#e8f5ee',
-    marginHorizontal: 12,
-  },
-
-  // ===== VERSIÓN =====
-  versionContainer: {
+  bottomNav: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 82,
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    marginBottom: 20,
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#edf0ed',
   },
-  versionText: {
-    fontSize: 13,
-    color: '#8ab89a',
+  navActive: {
+    width: 82,
+    height: 44,
+    borderRadius: 24,
+    backgroundColor: '#c9efc5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navActiveText: {
+    fontSize: 12,
+    color: '#5a7c58',
+    fontWeight: '800',
+  },
+  navItem: {
+    alignItems: 'center',
+  },
+  navText: {
+    fontSize: 12,
+    color: '#3d463c',
+    fontWeight: '700',
+    marginTop: 3,
   },
 });
