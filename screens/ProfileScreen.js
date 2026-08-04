@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
@@ -186,6 +187,32 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+function StatCard({ value, label }) {
+  return (
+    <View style={styles.statCard}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function OptionItem({ icon, title, text }) {
+  return (
+    <View style={styles.optionItem}>
+      <View style={styles.optionIcon}>
+        <Feather name={icon} size={21} color="#154f1f" />
+      </View>
+
+      <View style={styles.optionTextBox}>
+        <Text style={styles.optionTitle}>{title}</Text>
+        <Text style={styles.optionText}>{text}</Text>
+      </View>
+
+      <Feather name="chevron-right" size={22} color="#9aa59a" />
+    </View>
   );
 }
 
@@ -419,7 +446,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
-  menuItem: {
+  optionItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
@@ -437,7 +468,16 @@ const styles = StyleSheet.create({
   menuIconContainerDanger: {
     backgroundColor: 'rgba(215, 25, 32, 0.06)',
   },
-  menuText: {
+  optionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: '#c9efc5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  optionTextBox: {
     flex: 1,
     fontSize: 15,
     fontWeight: '500',
