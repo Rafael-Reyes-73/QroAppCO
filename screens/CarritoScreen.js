@@ -88,11 +88,19 @@ export default function CarritoScreen({ onClose, onNavigate }) {
       <StatusBar style="dark" />
 
       <View style={styles.container}>
-        <View style={styles.header}>
+<View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => onNavigate('qrostore')}>
               <Feather name="arrow-left" size={24} color="#154f1f" />
             </TouchableOpacity>
+
+            <View style={styles.logoWrapper}>
+              <Image
+                source={logoImage}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </View>
 
             <Text style={styles.headerTitle}>Carrito</Text>
           </View>
@@ -209,15 +217,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerLeft: {
+headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  logoWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(16,82,25,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+    marginLeft: 14,
+  },
+  logoImage: {
+    width: 90,
+    height: 32,
+    borderRadius: 10,
   },
   headerTitle: {
     color: '#154f1f',
     fontSize: 25,
     fontWeight: '900',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   closeButton: {
     width: 32,

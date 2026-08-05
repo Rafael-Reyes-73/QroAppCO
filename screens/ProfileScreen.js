@@ -9,13 +9,13 @@ import {
   StatusBar,
   Image,
   Animated,
-  Platform,
   Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import QroStoreBottomNav from './QroStoreBottomNav';
+import { colors, fonts, shadows, radius, spacing } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
@@ -43,11 +43,10 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
         '¿Estás seguro de que deseas cerrar sesión?',
         [
           { text: 'Cancelar', style: 'cancel' },
-          { 
-            text: 'Cerrar Sesión', 
+          {
+            text: 'Cerrar Sesión',
             style: 'destructive',
             onPress: () => {
-              // Aquí irá la lógica de logout
               router.replace('/login');
             }
           }
@@ -57,9 +56,9 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
   };
 
   const menuItems = [
-    { id: 1, icon: 'clock', label: 'Historial de Compras', color: '#0a3a1a' },
-    { id: 2, icon: 'settings', label: 'Configuración', color: '#0a3a1a' },
-    { id: 3, icon: 'log-out', label: 'Cerrar Sesión', color: '#d71920', action: 'logout' },
+    { id: 1, icon: 'clock', label: 'Historial de Compras', color: colors.textDark },
+    { id: 2, icon: 'settings', label: 'Configuración', color: colors.textDark },
+    { id: 3, icon: 'log-out', label: 'Cerrar Sesión', color: colors.danger, action: 'logout' },
   ];
 
   const statsData = [
@@ -70,14 +69,14 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
-      
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View style={styles.container}>
-        {/* Header premium */}
+        {/* Header premium con logo limpio */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.logoWrapper}>
-              <Image 
+              <Image
                 source={logoImage}
                 style={styles.logoImage}
                 resizeMode="contain"
@@ -87,12 +86,12 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
           </View>
           {onClose && (
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={20} color="#0a3a1a" />
+              <Feather name="x" size={20} color={colors.textDark} />
             </TouchableOpacity>
           )}
         </View>
 
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
@@ -100,17 +99,17 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
             onNavigate && styles.scrollContentWithNav,
           ]}
         >
-          {/* Perfil Header con gradiente */}
+          {/* Perfil Header con gradiente premium */}
           <LinearGradient
-            colors={['#ffffff', '#f8fbf9']}
+            colors={[colors.primary, colors.primaryDark]}
             style={styles.profileHeader}
             start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 1 }}
           >
             <View style={styles.avatarContainer}>
               <View style={styles.avatarWrapper}>
                 <LinearGradient
-                  colors={['#0d8a4e', '#0a7a3e']}
+                  colors={[colors.primaryLight, colors.primary]}
                   style={styles.avatarGradient}
                 >
                   <Text style={styles.avatarText}>JM</Text>
@@ -124,7 +123,7 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
             <Text style={styles.userEmail}>javier.montes@ecoemail.com</Text>
             <TouchableOpacity style={styles.editProfileBtn}>
               <Text style={styles.editProfileText}>Editar Perfil</Text>
-              <Feather name="arrow-right" size={14} color="#0d8a4e" />
+              <Feather name="arrow-right" size={14} color={colors.primary} />
             </TouchableOpacity>
           </LinearGradient>
 
@@ -147,10 +146,10 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
               <View style={styles.sectionIconLine} />
               <Text style={styles.sectionTitle}>Gestión de Cuenta</Text>
             </View>
-            
+
             {menuItems.map((item, index) => (
               <React.Fragment key={item.id}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => handlePress(item.action)}
                   activeOpacity={0.7}
@@ -159,10 +158,10 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
                     styles.menuIconContainer,
                     item.id === 3 && styles.menuIconContainerDanger
                   ]}>
-                    <Feather 
-                      name={item.icon} 
-                      size={18} 
-                      color={item.id === 3 ? '#d71920' : '#0d8a4e'} 
+                    <Feather
+                      name={item.icon}
+                      size={18}
+                      color={item.id === 3 ? colors.danger : colors.primary}
                     />
                   </View>
                   <Text style={[
@@ -171,10 +170,10 @@ export default function ProfileScreen({ onClose, hideMenu = false, onNavigate })
                   ]}>
                     {item.label}
                   </Text>
-                  <Feather 
-                    name="chevron-right" 
-                    size={16} 
-                    color={item.id === 3 ? '#d71920' : '#8a9a8e'} 
+                  <Feather
+                    name="chevron-right"
+                    size={16}
+                    color={item.id === 3 ? colors.danger : colors.textMuted}
                   />
                 </TouchableOpacity>
                 {index < menuItems.length - 1 && <View style={styles.menuDivider} />}
@@ -205,31 +204,14 @@ function StatCard({ value, label }) {
   );
 }
 
-function OptionItem({ icon, title, text }) {
-  return (
-    <View style={styles.optionItem}>
-      <View style={styles.optionIcon}>
-        <Feather name={icon} size={21} color="#154f1f" />
-      </View>
-
-      <View style={styles.optionTextBox}>
-        <Text style={styles.optionTitle}>{title}</Text>
-        <Text style={styles.optionText}>{text}</Text>
-      </View>
-
-      <Feather name="chevron-right" size={22} color="#9aa59a" />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   // Header premium
   header: {
@@ -240,7 +222,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(13, 138, 78, 0.04)',
+    borderBottomColor: 'rgba(16,82,25,0.05)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -251,33 +233,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
   },
   logoImage: {
-    width: 80,
-    height: 28,
-    borderRadius: 4,
+    width: 90,
+    height: 30,
+    borderRadius: radius.sm,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: 22,
+    fontWeight: '900',
+    color: colors.textDark,
     letterSpacing: 0.3,
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f0f5f2',
+    backgroundColor: colors.bgSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -295,17 +277,11 @@ const styles = StyleSheet.create({
   // Perfil Header
   profileHeader: {
     alignItems: 'center',
-    borderRadius: 16,
-    paddingVertical: 24,
+    borderRadius: radius.lg,
+    paddingVertical: 26,
     paddingHorizontal: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
+    ...shadows.banner,
   },
   avatarContainer: {
     position: 'relative',
@@ -315,24 +291,24 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
-    padding: 2,
+    padding: 3,
     backgroundColor: '#ffffff',
-    shadowColor: '#0d8a4e',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 4,
   },
   avatarGradient: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: '800',
     color: 'white',
     letterSpacing: 1,
   },
@@ -343,7 +319,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -355,85 +331,75 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   userName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#ffffff',
     marginBottom: 2,
     letterSpacing: 0.3,
   },
   userEmail: {
     fontSize: 14,
-    color: '#4a6a4e',
+    color: 'rgba(255,255,255,0.85)',
     marginBottom: 14,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   editProfileBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: colors.accent,
     paddingHorizontal: 18,
-    paddingVertical: 7,
+    paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.1)',
     gap: 6,
   },
   editProfileText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#0d8a4e',
+    fontWeight: '800',
+    color: colors.primary,
     letterSpacing: 0.2,
   },
   // Stats
   statsContainer: {
     flexDirection: 'row',
     backgroundColor: '#ffffff',
-    borderRadius: 14,
-    paddingVertical: 16,
+    borderRadius: radius.lg,
+    paddingVertical: 18,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.card,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
+    borderColor: 'rgba(16,82,25,0.05)',
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: 24,
+    fontWeight: '900',
+    color: colors.textDark,
     letterSpacing: 0.3,
   },
   statLabel: {
     fontSize: 10,
-    color: '#4a6a4e',
+    color: colors.textMuted,
     marginTop: 2,
-    fontWeight: '500',
+    fontWeight: '700',
     letterSpacing: 0.2,
   },
   statDivider: {
     width: 1,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    backgroundColor: 'rgba(16,82,25,0.08)',
   },
   // Sección
   section: {
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: radius.lg,
     paddingHorizontal: 4,
     paddingVertical: 8,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.card,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
+    borderColor: 'rgba(16,82,25,0.05)',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -446,60 +412,40 @@ const styles = StyleSheet.create({
     width: 3,
     height: 16,
     borderRadius: 2,
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primary,
   },
   sectionTitle: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#4a6a4e',
+    fontWeight: '800',
+    color: colors.textMuted,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
-  },
-  optionItem: {
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 12,
   },
   menuIconContainer: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: 'rgba(16,82,25,0.07)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   menuIconContainerDanger: {
-    backgroundColor: 'rgba(215, 25, 32, 0.06)',
+    backgroundColor: 'rgba(215,25,32,0.07)',
   },
-  optionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: '#c9efc5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  optionTextBox: {
+  menuText: {
     flex: 1,
     fontSize: 15,
-    fontWeight: '500',
-    color: '#0a3a1a',
+    fontWeight: '700',
+    color: colors.textDark,
     letterSpacing: 0.2,
   },
   logoutText: {
-    color: '#d71920',
-    fontWeight: '600',
+    color: colors.danger,
+    fontWeight: '800',
   },
   menuDivider: {
     height: 1,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: 'rgba(16,82,25,0.06)',
     marginHorizontal: 12,
   },
   // Versión
@@ -514,12 +460,12 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#8a9a8e',
+    backgroundColor: colors.textMuted,
   },
   versionText: {
     fontSize: 12,
-    color: '#8a9a8e',
-    fontWeight: '400',
+    color: colors.textMuted,
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
 });

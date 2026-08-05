@@ -121,9 +121,9 @@ export default function QroPlayHomeScreen() {
 
       <View style={styles.container}>
         {/* ===== HEADER CON LOGO ===== */}
-        <View style={styles.header}>
+<View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
+            <View style={styles.logoWrapper}>
               <Image source={logoImage} style={styles.logo} resizeMode="contain" />
             </View>
             <View>
@@ -387,22 +387,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logoContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#f0f7f0',
+logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(21, 79, 31, 0.06)',
-    overflow: 'hidden',
+    borderColor: 'rgba(16,82,25,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+    marginRight: 12,
   },
   logo: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
+    width: 90,
+    height: 32,
+    borderRadius: 10,
   },
   headerTitle: {
     fontSize: 22,

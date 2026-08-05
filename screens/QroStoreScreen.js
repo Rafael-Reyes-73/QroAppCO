@@ -211,10 +211,10 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
       <StatusBar style="dark" />
 
       <View style={styles.container}>
-        {/* ===== HEADER CON LOGO ===== */}
+{/* ===== HEADER CON LOGO ===== */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
+            <View style={styles.logoWrapper}>
               <Image
                 source={logoImage}
                 style={styles.logo}
@@ -659,26 +659,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logoContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#f0f7f0',
+logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(21, 79, 31, 0.08)',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: 'rgba(16,82,25,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
     marginRight: 12,
-    overflow: 'hidden',
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 90,
+    height: 32,
     borderRadius: 10,
   },
   headerTitle: {

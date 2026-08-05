@@ -8,11 +8,11 @@ import {
   ScrollView,
   Image,
   Animated,
-  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { colors, fonts, shadows, radius, spacing } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
@@ -27,7 +27,7 @@ export default function NotificacionesScreen({ onClose }) {
       ...prev,
       [id]: true
     }));
-    
+
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 0.9,
@@ -103,17 +103,17 @@ export default function NotificacionesScreen({ onClose }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
-      
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View style={styles.container}>
         {/* Header premium */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose || (() => router.back())} style={styles.backButton}>
-              <Feather name="arrow-left" size={22} color="#0a3a1a" />
+              <Feather name="arrow-left" size={22} color={colors.textDark} />
             </TouchableOpacity>
             <View style={styles.logoWrapper}>
-              <Image 
+              <Image
                 source={logoImage}
                 style={styles.logoImage}
                 resizeMode="contain"
@@ -123,7 +123,7 @@ export default function NotificacionesScreen({ onClose }) {
           </View>
 
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Feather name="x" size={20} color="#0a3a1a" />
+            <Feather name="x" size={20} color={colors.textDark} />
           </TouchableOpacity>
         </View>
 
@@ -175,8 +175,8 @@ export default function NotificacionesScreen({ onClose }) {
                 style={[
                   styles.cardWrapper,
                   {
-                    transform: [{ 
-                      scale: readItems[item.id] ? scaleAnim : 1 
+                    transform: [{
+                      scale: readItems[item.id] ? scaleAnim : 1
                     }],
                     opacity: readItems[item.id] ? 0.6 : 1,
                   },
@@ -193,7 +193,7 @@ export default function NotificacionesScreen({ onClose }) {
                       />
                     ) : (
                       <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name={item.icon} size={22} color="#0d8a4e" />
+                        <MaterialCommunityIcons name={item.icon} size={22} color={colors.primary} />
                       </View>
                     )}
                   </View>
@@ -212,7 +212,7 @@ export default function NotificacionesScreen({ onClose }) {
 
                     {item.actions && !readItems[item.id] && (
                       <View style={styles.actionsRow}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={styles.doneButton}
                           onPress={() => handleMarkAsRead(item.id)}
                           activeOpacity={0.7}
@@ -229,7 +229,7 @@ export default function NotificacionesScreen({ onClose }) {
 
                     {readItems[item.id] && (
                       <View style={styles.readBadge}>
-                        <Feather name="check-circle" size={14} color="#0d8a4e" />
+                        <Feather name="check-circle" size={14} color={colors.primary} />
                         <Text style={styles.readText}>Leído</Text>
                       </View>
                     )}
@@ -240,12 +240,12 @@ export default function NotificacionesScreen({ onClose }) {
           ) : (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconContainer}>
-                <Feather name="inbox" size={40} color="#c8d4c8" />
+                <Feather name="inbox" size={40} color={colors.textMuted} />
               </View>
               <Text style={styles.emptyText}>No hay notificaciones</Text>
               <Text style={styles.emptySubtext}>
-                {filter === 'no_leidas' ? '¡Todas las notificaciones están leídas!' : 
-                 filter === 'leidas' ? 'No hay notificaciones leídas' : 
+                {filter === 'no_leidas' ? '¡Todas las notificaciones están leídas!' :
+                 filter === 'leidas' ? 'No hay notificaciones leídas' :
                  'Pronto recibirás notificaciones importantes'}
               </Text>
             </View>
@@ -261,11 +261,11 @@ export default function NotificacionesScreen({ onClose }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   // Header premium
   header: {
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(13, 138, 78, 0.04)',
+    borderBottomColor: 'rgba(16,82,25,0.05)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -292,31 +292,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingVertical: 4,
     paddingHorizontal: 8,
-    borderRadius: 12,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
   },
   logoImage: {
-    width: 32,
-    height: 24,
-    borderRadius: 4,
+    width: 40,
+    height: 26,
+    borderRadius: radius.sm,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontWeight: '900',
+    color: colors.textDark,
     letterSpacing: 0.3,
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f0f5f2',
+    backgroundColor: colors.bgSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -330,24 +330,24 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.08)',
+    borderColor: 'rgba(16,82,25,0.08)',
   },
   filterChipActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
-    borderColor: '#0d8a4e',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterText: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#4a6a4e',
+    fontWeight: '700',
+    color: colors.textMuted,
   },
   filterTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '600',
+    color: '#ffffff',
+    fontWeight: '800',
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -362,14 +362,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    color: '#0a3a1a',
-    fontWeight: '700',
+    color: colors.textDark,
+    fontWeight: '900',
     letterSpacing: 0.3,
   },
   markAll: {
-    color: '#0d8a4e',
+    color: colors.primary,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
   cardWrapper: {
@@ -377,16 +377,12 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: radius.lg,
     padding: 16,
     flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.card,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
+    borderColor: 'rgba(16,82,25,0.04)',
   },
   iconColumn: {
     width: 48,
@@ -397,18 +393,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: 'rgba(16,82,25,0.07)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.08)',
+    borderColor: 'rgba(16,82,25,0.08)',
   },
   moritaImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: 'rgba(13, 138, 78, 0.1)',
+    borderColor: 'rgba(16,82,25,0.1)',
   },
   cardContent: {
     flex: 1,
@@ -421,14 +417,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontWeight: '800',
+    color: colors.textDark,
     letterSpacing: 0.3,
   },
   timeText: {
     fontSize: 11,
-    fontWeight: '500',
-    color: '#6a7a6e',
+    fontWeight: '600',
+    color: colors.textMuted,
   },
   unreadDot: {
     position: 'absolute',
@@ -437,14 +433,14 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#d71920',
+    backgroundColor: colors.danger,
   },
   cardText: {
     marginTop: 6,
     fontSize: 14,
-    color: '#4a6a4e',
+    color: colors.textBody,
     lineHeight: 20,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -454,7 +450,7 @@ const styles = StyleSheet.create({
   doneButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primary,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 7,
@@ -462,19 +458,19 @@ const styles = StyleSheet.create({
   },
   doneText: {
     color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: '800',
     fontSize: 12,
     letterSpacing: 0.2,
   },
   postponeButton: {
-    backgroundColor: '#f0f5f2',
+    backgroundColor: colors.bgSoft,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 7,
   },
   postponeText: {
-    color: '#4a6a4e',
-    fontWeight: '500',
+    color: colors.textBody,
+    fontWeight: '700',
     fontSize: 12,
     letterSpacing: 0.2,
   },
@@ -486,8 +482,8 @@ const styles = StyleSheet.create({
   },
   readText: {
     fontSize: 12,
-    color: '#0d8a4e',
-    fontWeight: '500',
+    color: colors.primary,
+    fontWeight: '700',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -497,20 +493,20 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    backgroundColor: 'rgba(16,82,25,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyText: {
     fontSize: 16,
-    color: '#6a8a6e',
-    fontWeight: '500',
+    color: colors.textMuted,
+    fontWeight: '700',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 13,
-    color: '#8a9a8e',
-    fontWeight: '400',
+    color: colors.textMuted,
+    fontWeight: '500',
     marginTop: 4,
   },
   footerSpacer: {

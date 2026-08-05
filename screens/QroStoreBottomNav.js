@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { colors, safeBottom } from '../styles/theme';
 
 // Bottom nav premium y persistente para QroStore
 export default function QroStoreBottomNav({ active, onNavigate }) {
@@ -72,9 +73,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
-  iconWrapActive: {
-    backgroundColor: '#0d8a4e',
-    shadowColor: '#0d8a4e',
+iconWrapActive: {
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -82,13 +83,13 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 10,
-    color: '#6a8a6e',
+    color: colors.textMuted,
     fontWeight: '600',
     marginTop: 3,
     letterSpacing: 0.2,
   },
   navTextActive: {
-    color: '#0d8a4e',
+    color: colors.primary,
     fontWeight: '700',
   },
 });

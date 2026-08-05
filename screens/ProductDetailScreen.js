@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { colors, fonts, shadows, radius, spacing } from '../styles/theme';
 
 export default function ProductDetailScreen({ product }) {
   const router = useRouter();
@@ -26,14 +27,14 @@ export default function ProductDetailScreen({ product }) {
   }
 
   const getTypeColor = (tipo) => {
-    const colors = {
+    const colorsMap = {
       verdura: '#e8f5e9',
       fruta: '#fff3e0',
       hierba: '#e0f2f1',
       flor: '#f3e5f5',
       árbol: '#e8eaf6',
     };
-    return colors[tipo] || '#f5f5f5';
+    return colorsMap[tipo] || '#f5f5f5';
   };
 
   const getTypeIcon = (tipo) => {
@@ -47,29 +48,43 @@ export default function ProductDetailScreen({ product }) {
     return icons[tipo] || 'leaf';
   };
 
+  const sections = [
+    { title: 'Descripción', value: product.descripcion },
+    { title: 'Origen', value: product.origen },
+    { title: 'Municipios donde se cultiva', value: product.municipios },
+    { title: 'Ciclo de vida', value: product.ciclo_vida },
+    { title: 'Época de siembra', value: product.epoca_siembra },
+    { title: 'Tiempo de cosecha', value: product.tiempo_cosecha },
+    { title: 'Instrucciones de siembra', value: product.instrucciones_siembra },
+    { title: 'Tipo de suelo', value: product.tipo_suelo },
+    { title: 'Riego', value: product.riego },
+    { title: 'Cuidados', value: product.cuidados },
+    { title: 'Beneficios para la salud', value: product.beneficios_salud },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
-      
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Header con botón volver */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Feather name="arrow-left" size={24} color="#0a3a1a" />
+              <Feather name="arrow-left" size={24} color={colors.textDark} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.shareButton}>
-              <Feather name="share-2" size={20} color="#0a3a1a" />
+              <Feather name="share-2" size={20} color={colors.textDark} />
             </TouchableOpacity>
           </View>
 
           {/* Imagen del producto */}
           <View style={[styles.imageContainer, { backgroundColor: getTypeColor(product.tipo) }]}>
-            <MaterialCommunityIcons name={getTypeIcon(product.tipo)} size={80} color="#0d8a4e" />
+            <MaterialCommunityIcons name={getTypeIcon(product.tipo)} size={80} color={colors.primary} />
             <View style={styles.typeBadgeLarge}>
               <Text style={styles.typeBadgeLargeText}>{product.tipo}</Text>
             </View>
-            <View style={[styles.statusBadgeLarge, { backgroundColor: product.estado ? '#4caf50' : '#f44336' }]}>
+            <View style={[styles.statusBadgeLarge, { backgroundColor: product.estado ? colors.success : colors.danger }]}>
               <Text style={styles.statusBadgeLargeText}>{product.estado ? 'Disponible' : 'Agotado'}</Text>
             </View>
           </View>
@@ -82,75 +97,28 @@ export default function ProductDetailScreen({ product }) {
             {/* Tags */}
             <View style={styles.tagsContainer}>
               <View style={styles.tag}>
-                <Feather name="calendar" size={12} color="#0d8a4e" />
+                <Feather name="calendar" size={12} color={colors.primary} />
                 <Text style={styles.tagText}>{product.temporada}</Text>
               </View>
               <View style={styles.tag}>
-                <Feather name="thermometer" size={12} color="#0d8a4e" />
+                <Feather name="thermometer" size={12} color={colors.primary} />
                 <Text style={styles.tagText}>{product.clima}</Text>
               </View>
               <View style={styles.tag}>
-                <Feather name="maximize" size={12} color="#0d8a4e" />
+                <Feather name="maximize" size={12} color={colors.primary} />
                 <Text style={styles.tagText}>{product.tamaño}</Text>
               </View>
             </View>
 
             {/* Secciones informativas */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Descripción</Text>
-              <Text style={styles.sectionText}>{product.descripcion}</Text>
-            </View>
+            {sections.map((section, index) => (
+              <View key={index} style={styles.section}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                <Text style={styles.sectionText}>{section.value}</Text>
+              </View>
+            ))}
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Origen</Text>
-              <Text style={styles.sectionText}>{product.origen}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Municipios donde se cultiva</Text>
-              <Text style={styles.sectionText}>{product.municipios}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Ciclo de vida</Text>
-              <Text style={styles.sectionText}>{product.ciclo_vida}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Época de siembra</Text>
-              <Text style={styles.sectionText}>{product.epoca_siembra}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Tiempo de cosecha</Text>
-              <Text style={styles.sectionText}>{product.tiempo_cosecha}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Instrucciones de siembra</Text>
-              <Text style={styles.sectionText}>{product.instrucciones_siembra}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Tipo de suelo</Text>
-              <Text style={styles.sectionText}>{product.tipo_suelo}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Riego</Text>
-              <Text style={styles.sectionText}>{product.riego}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Cuidados</Text>
-              <Text style={styles.sectionText}>{product.cuidados}</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Beneficios para la salud</Text>
-              <Text style={styles.sectionText}>{product.beneficios_salud}</Text>
-            </View>
-
+            {/* Vitaminas */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Vitaminas y Minerales</Text>
               <View style={styles.nutrientsContainer}>
@@ -174,11 +142,11 @@ export default function ProductDetailScreen({ product }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
@@ -195,11 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.soft,
   },
   shareButton: {
     width: 40,
@@ -208,33 +172,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.soft,
   },
   imageContainer: {
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     position: 'relative',
+    ...shadows.card,
   },
   typeBadgeLarge: {
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: 'rgba(13, 138, 78, 0.85)',
+    backgroundColor: 'rgba(16,82,25,0.88)',
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 10,
   },
   typeBadgeLargeText: {
     color: '#ffffff',
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '800',
     textTransform: 'capitalize',
   },
   statusBadgeLarge: {
@@ -242,28 +203,29 @@ const styles = StyleSheet.create({
     bottom: 12,
     right: 12,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 10,
   },
   statusBadgeLargeText: {
     color: '#ffffff',
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '800',
   },
   content: {
     padding: 20,
   },
   productName: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0a3a1a',
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.textDark,
     marginBottom: 4,
   },
   productSubtitle: {
     fontSize: 14,
-    color: '#4a6a4e',
+    color: colors.textMuted,
     lineHeight: 20,
     marginBottom: 12,
+    fontWeight: '500',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -276,59 +238,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ffffff',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.08)',
+    borderColor: 'rgba(16,82,25,0.08)',
     gap: 6,
+    ...shadows.soft,
   },
   tagText: {
     fontSize: 11,
-    color: '#0a3a1a',
-    fontWeight: '500',
+    color: colors.textDark,
+    fontWeight: '700',
     textTransform: 'capitalize',
   },
   section: {
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: 17,
+    fontWeight: '900',
+    color: colors.textDark,
     marginBottom: 4,
   },
   sectionText: {
     fontSize: 14,
-    color: '#4a6a4e',
+    color: colors.textBody,
     lineHeight: 22,
+    fontWeight: '500',
   },
   nutrientsContainer: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 4,
+    marginTop: 6,
   },
   nutrientItem: {
     flex: 1,
     backgroundColor: '#ffffff',
-    padding: 12,
-    borderRadius: 12,
+    padding: 14,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(16,82,25,0.06)',
+    ...shadows.soft,
   },
   nutrientLabel: {
     fontSize: 11,
-    color: '#8a9a8e',
-    fontWeight: '500',
+    color: colors.textMuted,
+    fontWeight: '700',
     marginBottom: 2,
   },
   nutrientValue: {
     fontSize: 14,
-    color: '#0a3a1a',
-    fontWeight: '600',
+    color: colors.textDark,
+    fontWeight: '800',
   },
   errorText: {
     fontSize: 18,
-    color: '#0a3a1a',
+    color: colors.textDark,
     textAlign: 'center',
     marginTop: 40,
   },

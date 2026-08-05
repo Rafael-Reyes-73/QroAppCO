@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   ImageBackground,
   Animated,
-  Dimensions,
   Platform,
   Image,
   StatusBar,
@@ -18,15 +17,13 @@ import {
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-
-const { width, height } = Dimensions.get('window');
+import { colors, fonts, shadows, radius, spacing } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function InicioScreen({ router }) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [likedCards, setLikedCards] = useState({});
-  const [activeTab, setActiveTab] = useState('explorar');
   const [unreadCount, setUnreadCount] = useState(3);
   const [cartCount, setCartCount] = useState(2);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -37,7 +34,7 @@ export default function InicioScreen({ router }) {
       ...prev,
       [id]: !prev[id]
     }));
-    
+
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 1.3,
@@ -125,23 +122,23 @@ export default function InicioScreen({ router }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
-      
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View style={styles.container}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header premium con carrito y notificaciones */}
+          {/* Header premium con logo limpio */}
           <View style={styles.header}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.logoContainer}
               onPress={handleLogoPress}
               activeOpacity={1}
             >
               <Animated.View style={{ transform: [{ scale: logoScale }] }}>
                 <View style={styles.logoWrapper}>
-                  <Image 
+                  <Image
                     source={logoImage}
                     style={styles.logoImage}
                     resizeMode="contain"
@@ -151,21 +148,21 @@ export default function InicioScreen({ router }) {
             </TouchableOpacity>
 
             <View style={styles.headerActions}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => router.push('/qrostore')}
               >
-                <Feather name="shopping-cart" size={20} color="#0a3a1a" />
+                <Feather name="shopping-cart" size={20} color={colors.primary} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{cartCount}</Text>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => router.push('/notificaciones')}
               >
-                <Feather name="bell" size={20} color="#0a3a1a" />
+                <Feather name="bell" size={20} color={colors.primary} />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{unreadCount}</Text>
                 </View>
@@ -184,10 +181,10 @@ export default function InicioScreen({ router }) {
             styles.searchBox,
             searchFocused && styles.searchBoxFocused
           ]}>
-            <Feather name="search" size={18} color="#6a8a6e" />
+            <Feather name="search" size={18} color={colors.textMuted} />
             <TextInput
               placeholder="Buscar plantas, guias o productos..."
-              placeholderTextColor="#8a9a8e"
+              placeholderTextColor={colors.textMuted}
               style={styles.searchInput}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
@@ -195,7 +192,7 @@ export default function InicioScreen({ router }) {
             />
             {searchFocused && (
               <TouchableOpacity style={styles.searchClear}>
-                <Feather name="x" size={16} color="#6a8a6e" />
+                <Feather name="x" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             )}
           </View>
@@ -203,7 +200,7 @@ export default function InicioScreen({ router }) {
           {/* Banner premium con gradiente */}
           <TouchableOpacity activeOpacity={0.9}>
             <LinearGradient
-              colors={['#0d8a4e', '#0a7a3e']}
+              colors={[colors.primary, colors.primaryDark]}
               style={styles.banner}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -220,7 +217,7 @@ export default function InicioScreen({ router }) {
                 <View style={styles.bannerButton}>
                   <View style={styles.bannerButtonInner}>
                     <Text style={styles.bannerButtonText}>Ver Guia</Text>
-                    <Feather name="arrow-right" size={16} color="#0a3a1a" />
+                    <Feather name="arrow-right" size={16} color={colors.primaryDark} />
                   </View>
                 </View>
               </View>
@@ -240,8 +237,8 @@ export default function InicioScreen({ router }) {
 
           <View style={styles.grid}>
             {ecoCards.map((card) => (
-              <TouchableOpacity 
-                key={card.id} 
+              <TouchableOpacity
+                key={card.id}
                 style={styles.ecoCardWrapper}
                 activeOpacity={0.85}
                 onPress={() => handleCardPress(card.title)}
@@ -253,14 +250,14 @@ export default function InicioScreen({ router }) {
                   end={{ x: 1, y: 1 }}
                 >
                   <View style={styles.ecoIconContainer}>
-                    <MaterialCommunityIcons name={card.icon} size={24} color="#0a3a1a" />
+                    <MaterialCommunityIcons name={card.icon} size={24} color={colors.primary} />
                   </View>
                   <View style={styles.ecoTextContainer}>
                     <Text style={styles.ecoTitle}>{card.title}</Text>
                     <Text style={styles.ecoSubtitle}>{card.subtitle}</Text>
                   </View>
                   <View style={styles.ecoArrow}>
-                    <Feather name="chevron-right" size={16} color="#4a6a4e" />
+                    <Feather name="chevron-right" size={16} color={colors.textBody} />
                   </View>
                 </LinearGradient>
               </TouchableOpacity>
@@ -278,37 +275,37 @@ export default function InicioScreen({ router }) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recoScroll}
           >
             {recommendations.map((item) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={item.id}
                 style={styles.recoCardWrapper}
                 activeOpacity={0.9}
               >
                 <View style={styles.recoCard}>
-                  <ImageBackground 
-                    source={{ uri: item.image }} 
-                    style={styles.recoImage} 
+                  <ImageBackground
+                    source={{ uri: item.image }}
+                    style={styles.recoImage}
                     imageStyle={styles.recoImageRadius}
                   >
                     <LinearGradient
                       colors={['transparent', 'rgba(0,0,0,0.3)']}
                       style={styles.recoImageOverlay}
                     />
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.heartCircle}
                       onPress={() => handleLike(item.id)}
                       activeOpacity={0.7}
                     >
                       <Animated.View style={{ transform: [{ scale: likedCards[item.id] ? scaleAnim : 1 }] }}>
-                        <Feather 
-                          name="heart" 
-                          size={16} 
-                          color={likedCards[item.id] ? "#d71920" : "#ffffff"} 
+                        <Feather
+                          name="heart"
+                          size={16}
+                          color={likedCards[item.id] ? colors.danger : "#ffffff"}
                         />
                       </Animated.View>
                     </TouchableOpacity>
@@ -322,7 +319,7 @@ export default function InicioScreen({ router }) {
                     <Text style={styles.recoText}>{item.text}</Text>
                     <TouchableOpacity style={styles.recoButton}>
                       <Text style={styles.recoButtonText}>Leer mas</Text>
-                      <Feather name="arrow-right" size={14} color="#0d8a4e" />
+                      <Feather name="arrow-right" size={14} color={colors.primary} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -340,11 +337,11 @@ export default function InicioScreen({ router }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.bg,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -365,22 +362,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
     alignSelf: 'flex-start',
   },
   logoImage: {
-    width: 80,
-    height: 28,
-    borderRadius: 4,
+    width: 90,
+    height: 32,
+    borderRadius: radius.sm,
   },
   headerActions: {
     flexDirection: 'row',
@@ -394,18 +391,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    ...shadows.soft,
     position: 'relative',
   },
   badge: {
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: '#d71920',
+    backgroundColor: colors.danger,
     width: 18,
     height: 18,
     borderRadius: 9,
@@ -417,47 +410,43 @@ const styles = StyleSheet.create({
   badgeText: {
     color: 'white',
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   // Bienvenida premium
   welcomeContainer: {
     marginBottom: 16,
   },
   welcomeText: {
-    fontSize: 24,
-    color: '#0a3a1a',
-    fontWeight: '800',
+    fontSize: 26,
+    color: colors.textDark,
+    fontWeight: '900',
     letterSpacing: 0.3,
   },
   welcomeSubtext: {
     fontSize: 14,
-    color: '#4a7a5e',
-    fontWeight: '400',
+    color: colors.textMuted,
+    fontWeight: '500',
     marginTop: 2,
     letterSpacing: 0.2,
   },
   // Search bar premium
   searchBox: {
-    height: 48,
+    height: 50,
     backgroundColor: '#ffffff',
     borderRadius: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 6,
-    elevation: 1,
+    ...shadows.soft,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
+    borderColor: 'rgba(16,82,25,0.05)',
   },
   searchBoxFocused: {
     borderWidth: 2,
-    borderColor: '#0d8a4e',
-    shadowColor: '#0d8a4e',
-    shadowOpacity: 0.06,
+    borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
   },
@@ -465,9 +454,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 14,
-    color: '#0a2a1a',
+    color: colors.textDark,
     paddingVertical: 8,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   searchClear: {
     padding: 4,
@@ -475,14 +464,10 @@ const styles = StyleSheet.create({
   // Banner premium
   banner: {
     height: 170,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     marginBottom: 24,
     overflow: 'hidden',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
+    ...shadows.banner,
   },
   bannerContent: {
     flex: 1,
@@ -499,17 +484,17 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#7ddfa0',
+    backgroundColor: colors.accent,
   },
   bannerTag: {
-    color: '#7ddfa0',
+    color: colors.accent,
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 1.5,
   },
   bannerTitle: {
     color: '#ffffff',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
     lineHeight: 30,
     letterSpacing: 0.5,
@@ -519,6 +504,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     marginTop: 4,
+    fontWeight: '500',
   },
   bannerButton: {
     marginTop: 12,
@@ -530,13 +516,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 18,
     borderRadius: 20,
-    backgroundColor: '#7ddfa0',
+    backgroundColor: colors.accent,
     gap: 8,
   },
   bannerButtonText: {
-    color: '#0a3a1a',
+    color: colors.primaryDark,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
   // Secciones
@@ -555,17 +541,17 @@ const styles = StyleSheet.create({
     width: 3,
     height: 18,
     borderRadius: 2,
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primary,
   },
   sectionTitle: {
-    fontSize: 18,
-    color: '#0a3a1a',
-    fontWeight: '700',
+    fontSize: 20,
+    color: colors.textDark,
+    fontWeight: '900',
     letterSpacing: 0.3,
   },
   seeAll: {
-    color: '#0d8a4e',
-    fontWeight: '600',
+    color: colors.primary,
+    fontWeight: '800',
     fontSize: 12,
     letterSpacing: 0.3,
   },
@@ -581,14 +567,10 @@ const styles = StyleSheet.create({
   },
   ecoCard: {
     height: 110,
-    borderRadius: 14,
+    borderRadius: radius.lg,
     padding: 14,
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.soft,
   },
   ecoIconContainer: {
     width: 36,
@@ -604,13 +586,13 @@ const styles = StyleSheet.create({
   },
   ecoTitle: {
     fontSize: 15,
-    color: '#0a3a1a',
-    fontWeight: '700',
+    color: colors.textDark,
+    fontWeight: '800',
   },
   ecoSubtitle: {
     fontSize: 10,
-    color: '#4a6a4a',
-    fontWeight: '500',
+    color: colors.textBody,
+    fontWeight: '600',
     marginTop: 1,
   },
   ecoArrow: {
@@ -628,20 +610,16 @@ const styles = StyleSheet.create({
   recoCard: {
     width: 260,
     backgroundColor: '#ffffff',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.card,
   },
   recoImage: {
     height: 120,
   },
   recoImageRadius: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
   },
   recoImageOverlay: {
     position: 'absolute',
@@ -660,13 +638,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    backdropFilter: 'blur(4px)',
   },
   recoCategoryBadge: {
     position: 'absolute',
     left: 12,
     top: 12,
-    backgroundColor: 'rgba(13, 138, 78, 0.85)',
+    backgroundColor: 'rgba(16,82,25,0.88)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -674,23 +651,24 @@ const styles = StyleSheet.create({
   recoCategoryBadgeText: {
     color: '#ffffff',
     fontSize: 8,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 0.5,
   },
   recoBody: {
     padding: 14,
   },
   recoTitle: {
-    color: '#0a3a1a',
+    color: colors.textDark,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     marginTop: 2,
   },
   recoText: {
     marginTop: 4,
-    color: '#6a7a6e',
+    color: colors.textBody,
     fontSize: 12,
     lineHeight: 16,
+    fontWeight: '500',
   },
   recoButton: {
     marginTop: 10,
@@ -699,8 +677,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   recoButtonText: {
-    color: '#0d8a4e',
-    fontWeight: '600',
+    color: colors.primary,
+    fontWeight: '800',
     fontSize: 11,
     letterSpacing: 0.3,
   },

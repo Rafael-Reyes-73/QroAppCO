@@ -16,8 +16,9 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, shadows, radius, spacing } from '../styles/theme';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function LoginScreen({ router }) {
@@ -38,20 +39,17 @@ export default function LoginScreen({ router }) {
 
     setTimeout(() => {
       setIsLoading(false);
-      
+
       if (email === 'usuario@qrohuerto.com' && password === '123456') {
         console.log('Credenciales correctas! Redirigiendo...');
-        
+
         if (router) {
           router.replace('/(tabs)');
-          console.log('Redirigido a tabs');
         } else {
           console.error('Router no está disponible');
           Alert.alert('Error', 'Router no disponible');
         }
-        
       } else {
-        console.log('Credenciales incorrectas');
         Alert.alert(
           'Error de autenticación',
           'Credenciales incorrectas.\n\nusuario@qrohuerto.com\n123456'
@@ -62,33 +60,33 @@ export default function LoginScreen({ router }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f5faf7" barStyle="dark-content" />
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
 
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
-          {/* Decoración de fondo elegante */}
-          <View style={styles.headerDecor}>
-            <LinearGradient
-              colors={['rgba(13, 138, 78, 0.04)', 'rgba(13, 138, 78, 0.01)']}
-              style={styles.gradientBg}
-            />
+          {/* Decoración de fondo premium */}
+          <LinearGradient
+            colors={['rgba(16,82,25,0.05)', 'rgba(16,82,25,0.01)']}
+            style={styles.headerDecor}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             <View style={styles.decorCircle1} />
             <View style={styles.decorCircle2} />
             <View style={styles.decorCircle3} />
-            <View style={styles.decorCircle4} />
-            <View style={styles.decorLine} />
-          </View>
+          </LinearGradient>
 
-          {/* Logo elegante */}
+          {/* Logo limpio (estilo inicio) */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoOuterGlow}>
-              <View style={styles.logoWrapper}>
-                <View style={styles.logoInnerGlow} />
-                <Image source={logoImage} style={styles.logo} resizeMode="contain" />
-              </View>
+            <View style={styles.logoWrapper}>
+              <Image
+                source={logoImage}
+                style={styles.logo}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.taglineContainer}>
               <View style={styles.taglineDot} />
@@ -101,12 +99,12 @@ export default function LoginScreen({ router }) {
           <View style={styles.form}>
             <View style={styles.inputWrapper}>
               <View style={styles.inputIconContainer}>
-                <Feather name="mail" size={18} color="#0d8a4e" />
+                <Feather name="mail" size={18} color={colors.primary} />
               </View>
               <TextInput
                 style={styles.input}
                 placeholder="Correo electrónico"
-                placeholderTextColor="#a0b0a4"
+                placeholderTextColor={colors.textMuted}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -116,36 +114,36 @@ export default function LoginScreen({ router }) {
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputIconContainer}>
-                <Feather name="lock" size={18} color="#0d8a4e" />
+                <Feather name="lock" size={18} color={colors.primary} />
               </View>
               <TextInput
                 style={styles.input}
                 placeholder="Contraseña"
-                placeholderTextColor="#a0b0a4"
+                placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeButton}
               >
-                <Feather 
-                  name={showPassword ? 'eye-off' : 'eye'} 
-                  size={18} 
-                  color="#8a9a8e" 
+                <Feather
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={18}
+                  color={colors.textMuted}
                 />
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity 
-              style={styles.button} 
-              onPress={handleLogin} 
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
               disabled={isLoading}
               activeOpacity={0.85}
             >
               <LinearGradient
-                colors={['#0d8a4e', '#0a7a3e', '#086a34']}
+                colors={[colors.primaryLight, colors.primary, colors.primaryDark]}
                 style={styles.buttonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
@@ -161,8 +159,8 @@ export default function LoginScreen({ router }) {
               </LinearGradient>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.demoButton} 
+            <TouchableOpacity
+              style={styles.demoButton}
               onPress={() => {
                 setEmail('usuario@qrohuerto.com');
                 setPassword('123456');
@@ -170,7 +168,7 @@ export default function LoginScreen({ router }) {
               activeOpacity={0.7}
             >
               <View style={styles.demoButtonInner}>
-                <Feather name="key" size={14} color="#0d8a4e" />
+                <Feather name="key" size={14} color={colors.primary} />
                 <Text style={styles.demoText}>Usar credenciales de prueba</Text>
               </View>
             </TouchableOpacity>
@@ -189,25 +187,21 @@ export default function LoginScreen({ router }) {
             </View>
           </View>
 
-          {/* Credenciales info elegante */}
+          {/* Credenciales info premium */}
           <View style={styles.credentialsInfo}>
-            <LinearGradient
-              colors={['rgba(13, 138, 78, 0.03)', 'rgba(13, 138, 78, 0.01)']}
-              style={styles.credentialsGradient}
-            />
             <View style={styles.credentialsHeader}>
               <View style={styles.credentialsDot} />
               <Text style={styles.credentialsTitle}>Credenciales de prueba</Text>
             </View>
             <View style={styles.credentialRow}>
               <View style={styles.credentialIconBg}>
-                <Feather name="mail" size={11} color="#0d8a4e" />
+                <Feather name="mail" size={11} color={colors.primary} />
               </View>
               <Text style={styles.credentialsText}>usuario@qrohuerto.com</Text>
             </View>
             <View style={styles.credentialRow}>
               <View style={styles.credentialIconBg}>
-                <Feather name="key" size={11} color="#0d8a4e" />
+                <Feather name="key" size={11} color={colors.primary} />
               </View>
               <Text style={styles.credentialsText}>123456</Text>
             </View>
@@ -226,11 +220,11 @@ export default function LoginScreen({ router }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f8fbf9',
+    backgroundColor: colors.bg,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f8fbf9',
+    backgroundColor: colors.bg,
   },
   content: {
     flex: 1,
@@ -238,7 +232,6 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 20 : 30,
     paddingBottom: 20,
   },
-  // Decoración de fondo elegante
   headerDecor: {
     position: 'absolute',
     top: 0,
@@ -247,19 +240,12 @@ const styles = StyleSheet.create({
     height: height * 0.35,
     overflow: 'hidden',
   },
-  gradientBg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
   decorCircle1: {
     position: 'absolute',
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: 'rgba(13, 138, 78, 0.03)',
+    backgroundColor: 'rgba(16,82,25,0.04)',
     top: -120,
     right: -100,
   },
@@ -268,7 +254,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    backgroundColor: 'rgba(16,82,25,0.05)',
     top: -60,
     left: -60,
   },
@@ -277,69 +263,35 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: 'rgba(13, 138, 78, 0.03)',
+    backgroundColor: 'rgba(16,82,25,0.03)',
     top: 20,
     right: 20,
   },
-  decorCircle4: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(13, 138, 78, 0.02)',
-    bottom: -20,
-    left: -30,
-  },
-  decorLine: {
-    position: 'absolute',
-    width: 1,
-    height: 80,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
-    top: 60,
-    right: 80,
-    transform: [{ rotate: '25deg' }],
-  },
-  // Logo elegante
   logoContainer: {
     alignItems: 'center',
-    marginTop: Platform.OS === 'ios' ? 15 : 25,
-    marginBottom: 28,
+    marginTop: Platform.OS === 'ios' ? 20 : 32,
+    marginBottom: 30,
     zIndex: 1,
   },
-  logoOuterGlow: {
-    padding: 4,
-    borderRadius: 45,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
-  },
   logoWrapper: {
-    width: 130,
-    height: 130,
-    borderRadius: 38,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 35,
-    elevation: 20,
+    backgroundColor: '#ffffff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
-    position: 'relative',
-  },
-  logoInnerGlow: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 42,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
-    top: -5,
-    left: -5,
+    borderColor: 'rgba(16,82,25,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 4,
   },
   logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 25,
+    width: 180,
+    height: 60,
+    borderRadius: radius.sm,
   },
   taglineContainer: {
     flexDirection: 'row',
@@ -351,17 +303,16 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primary,
     opacity: 0.3,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#4a7a5e',
-    fontWeight: '400',
-    letterSpacing: 0.8,
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    fontWeight: '700',
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
-  // Formulario premium
   form: {
     flex: 1,
     zIndex: 1,
@@ -374,26 +325,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 14,
     borderWidth: 1.5,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.02,
     shadowRadius: 4,
     elevation: 1,
-    transition: 'all 0.3s',
-  },
-  inputWrapperFocused: {
-    borderColor: '#0d8a4e',
-    shadowColor: '#0d8a4e',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
   },
   inputIconContainer: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    backgroundColor: 'rgba(16,82,25,0.05)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -402,8 +345,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 15,
     fontSize: 15,
-    color: '#0a3a1a',
-    fontWeight: '500',
+    color: colors.textDark,
+    fontWeight: '600',
   },
   eyeButton: {
     padding: 8,
@@ -413,11 +356,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 6,
     overflow: 'hidden',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 8,
+    ...shadows.button,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -429,7 +368,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#ffffff',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 0.8,
   },
   demoButton: {
@@ -444,12 +383,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    backgroundColor: 'rgba(16,82,25,0.05)',
   },
   demoText: {
-    color: '#0d8a4e',
+    color: colors.primary,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     letterSpacing: 0.3,
   },
   dividerContainer: {
@@ -461,13 +400,13 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    backgroundColor: 'rgba(16,82,25,0.08)',
   },
   dividerText: {
     fontSize: 12,
-    color: '#8a9a8e',
+    color: colors.textMuted,
     paddingHorizontal: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   registerContainer: {
     flexDirection: 'row',
@@ -475,38 +414,24 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: '#4a6a4e',
-    fontWeight: '400',
+    color: colors.textBody,
+    fontWeight: '500',
   },
   registerLink: {
     fontSize: 14,
-    color: '#0d8a4e',
-    fontWeight: '700',
+    color: colors.primary,
+    fontWeight: '800',
     textDecorationLine: 'underline',
   },
-  // Credenciales info elegante
   credentialsInfo: {
     backgroundColor: '#ffffff',
     padding: 14,
     borderRadius: 14,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.04)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    borderColor: 'rgba(16,82,25,0.05)',
+    ...shadows.soft,
     zIndex: 1,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  credentialsGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   credentialsHeader: {
     flexDirection: 'row',
@@ -518,13 +443,13 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primary,
     opacity: 0.4,
   },
   credentialsTitle: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#0a3a1a',
+    fontWeight: '800',
+    color: colors.textDark,
     letterSpacing: 0.5,
   },
   credentialRow: {
@@ -537,14 +462,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 6,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
+    backgroundColor: 'rgba(16,82,25,0.05)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   credentialsText: {
     fontSize: 11,
-    color: '#4a6a4e',
-    fontWeight: '500',
+    color: colors.textBody,
+    fontWeight: '600',
   },
   versionContainer: {
     alignItems: 'center',
@@ -553,8 +478,8 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 11,
-    color: '#b0c0b4',
-    fontWeight: '400',
+    color: colors.textMuted,
+    fontWeight: '500',
     letterSpacing: 0.8,
   },
 });
