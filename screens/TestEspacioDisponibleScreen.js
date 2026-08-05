@@ -13,38 +13,39 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, shadows, radius } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function TestEspacioDisponibleScreen({ onClose }) {
   const [selectedOption, setSelectedOption] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('test');
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const options = [
-    { 
-      id: 1, 
-      icon: 'flower-tulip-outline', 
-      title: 'Macetas/Balcón', 
-      text: 'Ideal para espacios urbanos y cultivo vertical.' 
+    {
+      id: 1,
+      icon: 'flower-tulip-outline',
+      title: 'Macetas/Balcón',
+      text: 'Ideal para espacios urbanos y cultivo vertical.',
     },
-    { 
-      id: 2, 
-      icon: 'greenhouse', 
-      title: 'Huerto pequeño', 
-      text: 'Menos de 5m². Perfecto para un autoconsumo básico.' 
+    {
+      id: 2,
+      icon: 'greenhouse',
+      title: 'Huerto pequeño',
+      text: 'Menos de 5m². Perfecto para un autoconsumo básico.',
     },
-    { 
-      id: 3, 
-      icon: 'tractor', 
-      title: 'Huerto mediano', 
-      text: 'De 5 a 20m². Espacio para rotación de cultivos variados.' 
+    {
+      id: 3,
+      icon: 'tractor',
+      title: 'Huerto mediano',
+      text: 'De 5 a 20m². Espacio para rotación de cultivos variados.',
     },
-    { 
-      id: 4, 
-      icon: 'image-filter-hdr', 
-      title: 'Terreno amplio', 
-      text: 'Más de 20m². Capacidad para frutales y grandes surcos.' 
+    {
+      id: 4,
+      icon: 'image-filter-hdr',
+      title: 'Terreno amplio',
+      text: 'Más de 20m². Capacidad para frutales y grandes surcos.',
     },
   ];
 
@@ -64,124 +65,142 @@ export default function TestEspacioDisponibleScreen({ onClose }) {
     ]).start();
   };
 
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" backgroundColor="#f5faf7" />
+      <StatusBar style="dark" backgroundColor={colors.background} />
 
       <View style={styles.container}>
-        {/* Header */}
+        {/* ===== HEADER PREMIUM ===== */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
-              <Image 
+            <View style={styles.logoWrapper}>
+              <Image
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logo}
+                resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>Test</Text>
+            <View>
+              <Text style={styles.headerTitle}>Test de Cultivo</Text>
+              <Text style={styles.headerSubtitle}>Personaliza tu huerto</Text>
+            </View>
           </View>
 
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Feather name="x" size={20} color="#0a3a1a" />
-          </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Feather name="x" size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Progreso */}
+          {/* ===== PROGRESO ===== */}
           <View style={styles.progressContainer}>
             <View style={styles.progressTop}>
               <View style={styles.progressLabel}>
-                <Feather name="bar-chart-2" size={16} color="#0d8a4e" />
+                <LinearGradient
+                  colors={[colors.primaryLight, colors.primaryMain]}
+                  style={styles.progressIcon}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Feather name="bar-chart-2" size={15} color="#ffffff" />
+                </LinearGradient>
                 <Text style={styles.progressText}>Paso 3 de 3</Text>
               </View>
               <Text style={styles.percentText}>100%</Text>
             </View>
 
             <View style={styles.progressBg}>
-              <View style={styles.progressFill} />
+              <LinearGradient
+                colors={[colors.primaryMain, colors.primary]}
+                style={styles.progressFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
             </View>
           </View>
 
-          {/* Título */}
-          <Text style={styles.title}>¿De cuánto espacio dispones?</Text>
+          {/* ===== TÍTULO ===== */}
+          <View style={styles.titleBlock}>
+            <Text style={styles.title}>¿De cuánto espacio dispones?</Text>
+            <Text style={styles.description}>
+              Selecciona el área disponible para optimizar las recomendaciones
+              de tu plan de cultivo.
+            </Text>
+          </View>
 
-          {/* Opciones */}
-          {options.map((option) => (
-            <Animated.View
-              key={option.id}
-              style={[
-                styles.optionCardWrapper,
-                {
-                  transform: [{ 
-                    scale: selectedOption === option.id ? scaleAnim : 1 
-                  }],
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.optionCard,
-                  selectedOption === option.id && styles.optionCardSelected,
-                ]}
-                onPress={() => handleSelect(option.id)}
-                activeOpacity={0.7}
+          {/* ===== OPCIONES ===== */}
+          <View style={styles.optionsList}>
+            {options.map((option) => {
+              const active = selectedOption === option.id;
+              return (
+                <Animated.View
+                  key={option.id}
+                  style={[
+                    styles.optionCardWrapper,
+                    { transform: [{ scale: active ? scaleAnim : 1 }] },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={[styles.optionCard, active && styles.optionCardSelected]}
+                    onPress={() => handleSelect(option.id)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={[styles.optionIconBox, active && styles.optionIconBoxSelected]}>
+                      <MaterialCommunityIcons
+                        name={option.icon}
+                        size={24}
+                        color={active ? '#ffffff' : colors.primary}
+                      />
+                    </View>
+
+                    <View style={styles.optionContent}>
+                      <Text style={[styles.optionTitle, active && styles.optionTitleSelected]}>
+                        {option.title}
+                      </Text>
+                      <Text style={styles.optionText}>{option.text}</Text>
+                    </View>
+
+                    {active && (
+                      <LinearGradient
+                        colors={[colors.primaryMain, colors.primary]}
+                        style={styles.optionCheck}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <Feather name="check" size={16} color="#ffffff" />
+                      </LinearGradient>
+                    )}
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+          </View>
+
+          {/* ===== PLAN CARD ===== */}
+          <LinearGradient
+            colors={[colors.primary, colors.primaryDark]}
+            style={styles.planCard}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={styles.planTop}>
+              <LinearGradient
+                colors={[colors.primaryLight, colors.accentGreen]}
+                style={styles.planIconContainer}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
-                <View style={[
-                  styles.optionIconBox,
-                  selectedOption === option.id && styles.optionIconBoxSelected,
-                ]}>
-                  <MaterialCommunityIcons 
-                    name={option.icon} 
-                    size={24} 
-                    color={selectedOption === option.id ? '#ffffff' : '#0a3a1a'} 
-                  />
-                </View>
-
-                <View style={styles.optionContent}>
-                  <Text style={[
-                    styles.optionTitle,
-                    selectedOption === option.id && styles.optionTitleSelected,
-                  ]}>
-                    {option.title}
-                  </Text>
-                  <Text style={styles.optionText}>{option.text}</Text>
-                </View>
-
-                {selectedOption === option.id && (
-                  <View style={styles.optionCheck}>
-                    <Feather name="check" size={16} color="#ffffff" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
-
-          {/* Plan Card */}
-          <View style={styles.planCard}>
-            <ImageBackground
-              source={{
-                uri: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
-              }}
-              style={styles.planImage}
-              imageStyle={styles.planImageRadius}
-            >
-              <View style={styles.planOverlay}>
-                <View style={styles.planIconContainer}>
-                  <Feather name="check" size={24} color="#0d8a4e" />
-                </View>
+                <Feather name="check" size={24} color={colors.primary} />
+              </LinearGradient>
+              <View style={styles.planIconBadge}>
+                <Feather name="sparkles" size={11} color="#ffffff" />
               </View>
-            </ImageBackground>
+            </View>
 
             <Text style={styles.planTitle}>Preparando tu plan personalizado</Text>
             <Text style={styles.planText}>
@@ -192,43 +211,37 @@ export default function TestEspacioDisponibleScreen({ onClose }) {
 
             <View style={styles.planBadges}>
               <View style={styles.planBadge}>
-                <Feather name="calendar" size={14} color="#0d8a4e" />
+                <Feather name="calendar" size={14} color={colors.accentGreen} />
                 <Text style={styles.planBadgeText}>Ciclo de 12 meses</Text>
               </View>
 
               <View style={styles.planBadge}>
-                <MaterialCommunityIcons name="water-outline" size={16} color="#0d8a4e" />
+                <MaterialCommunityIcons name="water-outline" size={16} color={colors.accentGreen} />
                 <Text style={styles.planBadgeText}>Riego inteligente</Text>
               </View>
             </View>
-          </View>
+          </LinearGradient>
         </ScrollView>
 
-        {/* Bottom Buttons */}
+        {/* ===== BOTONES INFERIORES ===== */}
         <View style={styles.bottomButtons}>
-          <TouchableOpacity style={styles.backButton} activeOpacity={0.7}>
-            <Feather name="arrow-left" size={16} color="#4a6a4e" />
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
+            <Feather name="arrow-left" size={16} color={colors.textBody} />
             <Text style={styles.backText}>Volver</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[
-              styles.finishButton,
-              selectedOption !== null && styles.finishButtonActive,
-            ]}
-            activeOpacity={0.8}
+          <TouchableOpacity
+            style={[styles.finishButton, selectedOption !== null && styles.finishButtonActive]}
+            activeOpacity={0.85}
             disabled={selectedOption === null}
           >
-            <Text style={[
-              styles.finishText,
-              selectedOption !== null && styles.finishTextActive,
-            ]}>
+            <Text style={[styles.finishText, selectedOption !== null && styles.finishTextActive]}>
               Finalizar y Ver Resultados
             </Text>
-            <Feather 
-              name="arrow-right" 
-              size={16} 
-              color={selectedOption !== null ? '#ffffff' : '#8a9a8e'} 
+            <Feather
+              name="arrow-right"
+              size={16}
+              color={selectedOption !== null ? '#ffffff' : colors.textLight}
             />
           </TouchableOpacity>
         </View>
@@ -240,71 +253,84 @@ export default function TestEspacioDisponibleScreen({ onClose }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
+  // ===== HEADER =====
   header: {
+    height: 76,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
+  logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
-  },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
-    letterSpacing: 0.3,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f0f5f2',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 180,
-  },
-  progressContainer: {
     backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 14,
-    padding: 16,
-    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
+    marginRight: 12,
+  },
+  logo: {
+    width: 90,
+    height: 32,
+    borderRadius: 10,
+  },
+  headerTitle: {
+    fontSize: fonts.xl,
+    fontWeight: '900',
+    color: colors.primary,
+    lineHeight: 22,
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginTop: 1,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // ===== SCROLL =====
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 180,
+  },
+  // ===== PROGRESO =====
+  progressContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: radius.lg,
+    padding: 16,
+    marginBottom: 24,
+    ...shadows.card,
   },
   progressTop: {
     flexDirection: 'row',
@@ -314,150 +340,162 @@ const styles = StyleSheet.create({
   progressLabel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+  },
+  progressIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4a6a4e',
+    fontSize: fonts.sm,
+    fontWeight: '700',
+    color: colors.textBody,
     letterSpacing: 0.3,
   },
   percentText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#0d8a4e',
+    fontSize: fonts.md,
+    fontWeight: '800',
+    color: colors.primaryMain,
   },
   progressBg: {
-    height: 6,
-    backgroundColor: '#e8ede8',
-    borderRadius: 3,
-    marginTop: 10,
+    height: 7,
+    backgroundColor: colors.border,
+    borderRadius: 4,
+    marginTop: 12,
     overflow: 'hidden',
   },
   progressFill: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#0d8a4e',
-    borderRadius: 3,
+    borderRadius: 4,
+  },
+  // ===== TÍTULO =====
+  titleBlock: {
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    color: '#0a3a1a',
-    fontWeight: '700',
+    color: colors.textDark,
+    fontWeight: '900',
     lineHeight: 32,
     letterSpacing: 0.3,
-    marginBottom: 20,
+    marginBottom: 8,
+  },
+  description: {
+    fontSize: fonts.md,
+    color: colors.textBody,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  // ===== OPCIONES =====
+  optionsList: {
+    gap: 12,
   },
   optionCardWrapper: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: radius.lg,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 2,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.card,
   },
   optionCardSelected: {
-    borderColor: '#0d8a4e',
-    backgroundColor: 'rgba(13, 138, 78, 0.03)',
+    borderColor: colors.primaryMain,
+    backgroundColor: colors.primarySoft,
   },
   optionIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   optionIconBoxSelected: {
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primaryMain,
   },
   optionContent: {
     flex: 1,
   },
   optionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0a3a1a',
+    fontSize: fonts.lg,
+    fontWeight: '800',
+    color: colors.textDark,
     letterSpacing: 0.2,
     marginBottom: 2,
   },
   optionTitleSelected: {
-    color: '#0d8a4e',
-    fontWeight: '700',
+    color: colors.primary,
   },
   optionText: {
-    fontSize: 13,
-    color: '#4a6a4e',
-    fontWeight: '400',
+    fontSize: fonts.sm,
+    color: colors.textBody,
+    fontWeight: '500',
     lineHeight: 18,
   },
   optionCheck: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#0d8a4e',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
   },
+  // ===== PLAN =====
   planCard: {
-    marginTop: 16,
-    borderRadius: 14,
-    backgroundColor: '#ffffff',
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    marginTop: 20,
+    borderRadius: radius.xl,
+    padding: 20,
+    ...shadows.green,
   },
-  planImage: {
-    height: 140,
-    marginBottom: 16,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  planImageRadius: {
-    borderRadius: 10,
-  },
-  planOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(13, 138, 78, 0.15)',
-    justifyContent: 'center',
+  planTop: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 14,
   },
   planIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  planIconBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
   planTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '900',
     letterSpacing: 0.3,
     marginBottom: 6,
   },
   planText: {
-    fontSize: 14,
-    color: '#4a6a4e',
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: fonts.md,
     lineHeight: 22,
-    fontWeight: '400',
-    marginBottom: 14,
+    fontWeight: '500',
+    marginBottom: 16,
   },
   planBadges: {
     flexDirection: 'row',
@@ -467,112 +505,69 @@ const styles = StyleSheet.create({
   planBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
     gap: 6,
   },
   planBadgeText: {
-    fontSize: 12,
-    color: '#0d8a4e',
-    fontWeight: '500',
+    fontSize: fonts.sm,
+    color: '#ffffff',
+    fontWeight: '700',
     letterSpacing: 0.2,
   },
+  // ===== BOTONES INFERIORES =====
   bottomButtons: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 65,
-    backgroundColor: 'transparent',
+    bottom: 0,
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 44,
-    borderRadius: 14,
-    borderWidth: 1,
+    height: 46,
+    borderRadius: radius.pill,
+    borderWidth: 1.5,
     borderColor: 'rgba(13, 138, 78, 0.15)',
     backgroundColor: '#ffffff',
     gap: 6,
   },
   backText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#4a6a4e',
+    fontSize: fonts.md,
+    fontWeight: '700',
+    color: colors.textBody,
     letterSpacing: 0.3,
   },
   finishButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#e8ede8',
+    height: 52,
+    borderRadius: radius.pill,
+    backgroundColor: colors.border,
     gap: 8,
   },
   finishButtonActive: {
-    backgroundColor: '#0d8a4e',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
+    backgroundColor: colors.primaryMain,
+    ...shadows.green,
   },
   finishText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#8a9a8e',
+    fontSize: fonts.lg,
+    fontWeight: '800',
+    color: colors.textLight,
     letterSpacing: 0.3,
   },
   finishTextActive: {
     color: '#ffffff',
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
   },
 });

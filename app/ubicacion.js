@@ -5,7 +5,8 @@ export default function Ubicacion() {
   const router = useRouter();
   
   const handleClose = () => {
-    router.back();
+    // Regresa de forma confiable al inicio (tabs)
+    router.replace('/(tabs)');
   };
   
   return <UbicacionProveedoresScreen onClose={handleClose} />;

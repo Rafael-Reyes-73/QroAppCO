@@ -13,11 +13,12 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, shadows, radius } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function ResultadosTestScreen({ onClose }) {
-  const [selectedTab, setSelectedTab] = useState('test');
   const [likedItems, setLikedItems] = useState({});
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -26,7 +27,7 @@ export default function ResultadosTestScreen({ onClose }) {
       ...prev,
       [id]: !prev[id]
     }));
-    
+
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 1.3,
@@ -68,37 +69,33 @@ export default function ResultadosTestScreen({ onClose }) {
     },
   ];
 
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" backgroundColor="#f5faf7" />
+      <StatusBar style="dark" backgroundColor={colors.background} />
 
       <View style={styles.container}>
-        {/* Header */}
+        {/* ===== HEADER PREMIUM ===== */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
-              <Image 
+            <View style={styles.logoWrapper}>
+              <Image
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logo}
+                resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>Resultados</Text>
+            <View>
+              <Text style={styles.headerTitle}>Resultados</Text>
+              <Text style={styles.headerSubtitle}>Tus recomendaciones ideales</Text>
+            </View>
           </View>
 
           <View style={styles.headerIcons}>
             <TouchableOpacity style={styles.iconButton}>
-              <Feather name="search" size={20} color="#0a3a1a" />
+              <Feather name="search" size={20} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={20} color="#0a3a1a" />
+              <Feather name="x" size={20} color={colors.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -107,81 +104,108 @@ export default function ResultadosTestScreen({ onClose }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <Text style={styles.kicker}>ANÁLISIS DE SUELO Y CLIMA</Text>
-          <Text style={styles.title}>Tus Recomendaciones Ideales</Text>
+          {/* ===== ENCABEZADO ===== */}
+          <View style={styles.heading}>
+            <View style={styles.kickerRow}>
+              <LinearGradient
+                colors={[colors.primaryLight, colors.primaryMain]}
+                style={styles.kickerLine}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
+              <Text style={styles.kicker}>ANÁLISIS DE SUELO Y CLIMA</Text>
+            </View>
+            <Text style={styles.title}>Tus Recomendaciones Ideales</Text>
+            <Text style={styles.description}>
+              Basado en tus condiciones actuales de iluminación y tipo de
+              sustrato, estas variedades tienen la mayor probabilidad de éxito
+              en tu hogar.
+            </Text>
+          </View>
 
-          <Text style={styles.description}>
-            Basado en tus condiciones actuales de iluminación y tipo de sustrato,
-            estas variedades tienen la mayor probabilidad de éxito en tu hogar.
-          </Text>
-
-          {results.map((item) => (
-            <Animated.View
-              key={item.id}
-              style={[
-                styles.cardWrapper,
-                {
-                  transform: [{ 
-                    scale: likedItems[item.id] ? scaleAnim : 1 
-                  }],
-                },
-              ]}
-            >
-              <View style={styles.card}>
-                <ImageBackground
-                  source={{ uri: item.image }}
-                  style={styles.cardImage}
-                  imageStyle={styles.cardImageRadius}
+          {/* ===== TARJETAS ===== */}
+          <View style={styles.cardsList}>
+            {results.map((item) => {
+              const liked = likedItems[item.id];
+              return (
+                <Animated.View
+                  key={item.id}
+                  style={[
+                    styles.cardWrapper,
+                    { transform: [{ scale: liked ? scaleAnim : 1 }] },
+                  ]}
                 >
-                  <TouchableOpacity 
-                    style={styles.favoriteCircle}
-                    onPress={() => handleLike(item.id)}
-                    activeOpacity={0.7}
-                  >
-                    <Animated.View style={{ transform: [{ scale: likedItems[item.id] ? scaleAnim : 1 }] }}>
-                      <Feather 
-                        name="heart" 
-                        size={20} 
-                        color={likedItems[item.id] ? "#d71920" : "#0a3a1a"} 
+                  <View style={styles.card}>
+                    <ImageBackground
+                      source={{ uri: item.image }}
+                      style={styles.cardImage}
+                      imageStyle={styles.cardImageRadius}
+                    >
+                      <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.25)']}
+                        style={styles.cardImageOverlay}
                       />
-                    </Animated.View>
-                  </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.favoriteCircle}
+                        onPress={() => handleLike(item.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Animated.View style={{ transform: [{ scale: liked ? scaleAnim : 1 }] }}>
+                          <Feather
+                            name="heart"
+                            size={20}
+                            color={liked ? colors.danger : colors.primary}
+                          />
+                        </Animated.View>
+                      </TouchableOpacity>
 
-                  <View style={styles.compatibilityBadge}>
-                    <Feather name="star" size={10} color="#7ddfa0" fill="#7ddfa0" />
-                    <Text style={styles.compatibilityText}>{item.compatibility}</Text>
-                  </View>
-                </ImageBackground>
+                      <LinearGradient
+                        colors={['rgba(13,138,78,0.9)', colors.primary]}
+                        style={styles.compatibilityBadge}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                      >
+                        <Feather name="star" size={10} color={colors.accentGreen} />
+                        <Text style={styles.compatibilityText}>{item.compatibility}</Text>
+                      </LinearGradient>
+                    </ImageBackground>
 
-                <View style={styles.cardBody}>
-                  <View style={styles.cardTop}>
-                    <View style={styles.cardInfo}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>{item.tag}</Text>
+                    <View style={styles.cardBody}>
+                      <View style={styles.cardTop}>
+                        <View style={styles.cardInfo}>
+                          <View style={styles.tag}>
+                            <Text style={styles.tagText}>{item.tag}</Text>
+                          </View>
+
+                          <Text style={styles.cardTitle}>{item.title}</Text>
+                          <Text style={styles.cardText}>{item.text}</Text>
+                        </View>
+
+                        <TouchableOpacity activeOpacity={0.7} style={styles.plusButton}>
+                          <Feather name="plus" size={20} color="#ffffff" />
+                        </TouchableOpacity>
                       </View>
 
-                      <Text style={styles.cardTitle}>{item.title}</Text>
-                      <Text style={styles.cardText}>{item.text}</Text>
+                      <TouchableOpacity activeOpacity={0.85} style={styles.detailButton}>
+                        <Text style={styles.detailText}>Ver Detalle</Text>
+                        <Feather name="arrow-right" size={14} color="#ffffff" />
+                      </TouchableOpacity>
                     </View>
-
-                    <TouchableOpacity activeOpacity={0.7} style={styles.plusButton}>
-                      <Feather name="plus" size={20} color="#ffffff" />
-                    </TouchableOpacity>
                   </View>
+                </Animated.View>
+              );
+            })}
+          </View>
 
-                  <TouchableOpacity activeOpacity={0.8} style={styles.detailButton}>
-                    <Text style={styles.detailText}>Ver Detalle</Text>
-                    <Feather name="arrow-right" size={14} color="#ffffff" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Animated.View>
-          ))}
-
-          {/* Empty Box */}
-          <View style={styles.emptyBox}>
+          {/* ===== CAJA VACÍA ===== */}
+          <LinearGradient
+            colors={['rgba(13,138,78,0.04)', 'rgba(13,138,78,0.02)']}
+            style={styles.emptyBox}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             <View style={styles.emptyIconContainer}>
-              <Feather name="search" size={32} color="#0d8a4e" />
+              <Feather name="search" size={32} color={colors.primary} />
             </View>
             <Text style={styles.emptyTitle}>¿No encontraste lo que buscabas?</Text>
             <Text style={styles.emptyText}>
@@ -189,11 +213,11 @@ export default function ResultadosTestScreen({ onClose }) {
               que se adapten a diferentes rincones de tu espacio.
             </Text>
 
-            <TouchableOpacity activeOpacity={0.8} style={styles.repeatButton}>
+            <TouchableOpacity activeOpacity={0.85} style={styles.repeatButton}>
               <Feather name="refresh-cw" size={16} color="#ffffff" />
               <Text style={styles.repeatText}>Repetir Test</Text>
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -203,47 +227,59 @@ export default function ResultadosTestScreen({ onClose }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
+  // ===== HEADER =====
   header: {
+    height: 76,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
+  logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
+    borderColor: 'rgba(16,82,25,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+    marginRight: 12,
   },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
+  logo: {
+    width: 90,
+    height: 32,
+    borderRadius: 10,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
-    letterSpacing: 0.3,
+    fontSize: fonts.xxl,
+    fontWeight: '900',
+    color: colors.primary,
+    lineHeight: 24,
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -251,95 +287,115 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconButton: {
-    padding: 4,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f0f5f2',
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // ===== SCROLL =====
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 100,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  // ===== ENCABEZADO =====
+  heading: {
+    marginBottom: 22,
+  },
+  kickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  kickerLine: {
+    width: 4,
+    height: 18,
+    borderRadius: 2,
   },
   kicker: {
-    color: '#0d8a4e',
+    color: colors.primaryMain,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 1.2,
-    marginBottom: 6,
   },
   title: {
-    fontSize: 24,
-    color: '#0a3a1a',
-    fontWeight: '700',
-    lineHeight: 30,
+    fontSize: 26,
+    color: colors.textDark,
+    fontWeight: '900',
+    lineHeight: 32,
     marginBottom: 8,
     letterSpacing: 0.3,
   },
   description: {
-    fontSize: 14,
-    color: '#4a6a4e',
+    fontSize: fonts.md,
+    color: colors.textBody,
     lineHeight: 22,
-    fontWeight: '400',
-    marginBottom: 20,
+    fontWeight: '500',
+  },
+  // ===== TARJETAS =====
+  cardsList: {
+    gap: 16,
   },
   cardWrapper: {
-    marginBottom: 14,
+    marginBottom: 0,
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: radius.xl,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadows.elevated,
   },
   cardImage: {
     height: 190,
   },
   cardImageRadius: {
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+  },
+  cardImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   favoriteCircle: {
     position: 'absolute',
     top: 14,
     right: 14,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.card,
   },
   compatibilityBadge: {
     position: 'absolute',
     left: 14,
     bottom: 14,
-    backgroundColor: 'rgba(13, 138, 78, 0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   compatibilityText: {
     color: '#ffffff',
-    fontSize: 10,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
   cardBody: {
@@ -355,162 +411,108 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tag: {
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    backgroundColor: colors.primarySoft,
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    marginBottom: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 7,
+    marginBottom: 5,
   },
   tagText: {
-    color: '#0d8a4e',
+    color: colors.primary,
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: fonts.xxl,
+    fontWeight: '800',
+    color: colors.textDark,
     letterSpacing: 0.2,
   },
   cardText: {
     marginTop: 4,
-    fontSize: 13,
-    color: '#4a6a4e',
-    lineHeight: 18,
-    fontWeight: '400',
+    fontSize: fonts.sm,
+    color: colors.textBody,
+    lineHeight: 19,
+    fontWeight: '500',
   },
   plusButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#0d8a4e',
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: colors.primaryMain,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 10,
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.green,
   },
   detailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 10,
+    height: 44,
+    backgroundColor: colors.primaryMain,
+    borderRadius: radius.md,
     marginTop: 14,
     gap: 6,
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.green,
   },
   detailText: {
     color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: fonts.md,
+    fontWeight: '800',
     letterSpacing: 0.3,
   },
+  // ===== CAJA VACÍA =====
   emptyBox: {
     marginTop: 24,
-    backgroundColor: 'rgba(13, 138, 78, 0.04)',
-    borderRadius: 16,
+    borderRadius: radius.xl,
     paddingHorizontal: 24,
     paddingVertical: 32,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.06)',
+    borderColor: 'rgba(13, 138, 78, 0.08)',
   },
   emptyIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0a3a1a',
+    fontSize: fonts.xl,
+    fontWeight: '800',
+    color: colors.textDark,
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: 0.3,
   },
   emptyText: {
-    fontSize: 14,
-    color: '#4a6a4e',
+    fontSize: fonts.md,
+    color: colors.textBody,
     lineHeight: 20,
     textAlign: 'center',
-    fontWeight: '400',
+    fontWeight: '500',
     marginBottom: 20,
   },
   repeatButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0d8a4e',
+    backgroundColor: colors.primaryMain,
     paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 25,
+    paddingVertical: 12,
+    borderRadius: radius.pill,
     gap: 8,
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    ...shadows.green,
   },
   repeatText: {
     color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: fonts.md,
+    fontWeight: '800',
     letterSpacing: 0.3,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
   },
 });

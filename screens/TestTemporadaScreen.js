@@ -13,12 +13,13 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, shadows, radius } from '../styles/theme';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 export default function TestTemporadaScreen({ onClose }) {
   const [selectedSeason, setSelectedSeason] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('test');
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const seasons = [
@@ -44,140 +45,150 @@ export default function TestTemporadaScreen({ onClose }) {
     ]).start();
   };
 
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" backgroundColor="#f5faf7" />
+      <StatusBar style="dark" backgroundColor={colors.background} />
 
       <View style={styles.container}>
-        {/* Header */}
+        {/* ===== HEADER PREMIUM ===== */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
-              <Image 
+            <View style={styles.logoWrapper}>
+              <Image
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logo}
+                resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>Test</Text>
+            <View>
+              <Text style={styles.headerTitle}>Test de Cultivo</Text>
+              <Text style={styles.headerSubtitle}>Personaliza tu huerto</Text>
+            </View>
           </View>
 
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Feather name="x" size={20} color="#0a3a1a" />
-          </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Feather name="x" size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Progreso */}
+          {/* ===== PROGRESO ===== */}
           <View style={styles.progressContainer}>
             <View style={styles.progressTop}>
               <View style={styles.progressLabel}>
-                <Feather name="bar-chart-2" size={16} color="#0d8a4e" />
+                <LinearGradient
+                  colors={[colors.primaryLight, colors.primaryMain]}
+                  style={styles.progressIcon}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Feather name="bar-chart-2" size={15} color="#ffffff" />
+                </LinearGradient>
                 <Text style={styles.progressText}>Paso 2 de 3</Text>
               </View>
               <Text style={styles.percentText}>66%</Text>
             </View>
 
             <View style={styles.progressBg}>
-              <View style={styles.progressFill} />
+              <LinearGradient
+                colors={[colors.primaryMain, colors.primary]}
+                style={styles.progressFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
             </View>
           </View>
 
-          {/* Título */}
-          <Text style={styles.title}>¿En qué temporada quieres sembrar?</Text>
+          {/* ===== TÍTULO ===== */}
+          <View style={styles.titleBlock}>
+            <Text style={styles.title}>¿En qué temporada quieres sembrar?</Text>
+            <Text style={styles.description}>
+              Selecciona la época del año en la que planeas comenzar tu huerto
+              orgánico para ofrecerte las mejores recomendaciones.
+            </Text>
+          </View>
 
-          <Text style={styles.description}>
-            Selecciona la época del año en la que planeas comenzar tu huerto
-            orgánico para ofrecerte las mejores recomendaciones.
-          </Text>
-
-          {/* Tarjetas de temporada */}
-          {seasons.map((season) => (
-            <Animated.View
-              key={season.id}
-              style={[
-                styles.seasonCardWrapper,
-                {
-                  transform: [{ 
-                    scale: selectedSeason === season.id ? scaleAnim : 1 
-                  }],
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.seasonCard,
-                  selectedSeason === season.id && styles.seasonCardSelected,
-                ]}
-                onPress={() => handleSelect(season.id)}
-                activeOpacity={0.8}
-              >
-                <ImageBackground
-                  source={{ uri: season.image }}
-                  style={styles.seasonImage}
-                  imageStyle={styles.seasonImageRadius}
+          {/* ===== TARJETAS DE TEMPORADA ===== */}
+          <View style={styles.seasonsList}>
+            {seasons.map((season) => {
+              const active = selectedSeason === season.id;
+              return (
+                <Animated.View
+                  key={season.id}
+                  style={[
+                    styles.seasonCardWrapper,
+                    { transform: [{ scale: active ? scaleAnim : 1 }] },
+                  ]}
                 >
-                  {selectedSeason === season.id && (
-                    <View style={styles.seasonOverlay}>
-                      <View style={styles.seasonCheck}>
-                        <Feather name="check" size={20} color="#ffffff" />
-                      </View>
-                    </View>
-                  )}
-                </ImageBackground>
+                  <TouchableOpacity
+                    style={[styles.seasonCard, active && styles.seasonCardSelected]}
+                    onPress={() => handleSelect(season.id)}
+                    activeOpacity={0.85}
+                  >
+                    <ImageBackground
+                      source={{ uri: season.image }}
+                      style={styles.seasonImage}
+                      imageStyle={styles.seasonImageRadius}
+                    >
+                      <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.35)']}
+                        style={styles.seasonImageOverlay}
+                      />
+                      {active && (
+                        <View style={styles.seasonOverlay}>
+                          <LinearGradient
+                            colors={[colors.primaryMain, colors.primary]}
+                            style={styles.seasonCheck}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                          >
+                            <Feather name="check" size={20} color="#ffffff" />
+                          </LinearGradient>
+                        </View>
+                      )}
+                    </ImageBackground>
 
-                <View style={styles.seasonInfo}>
-                  <Text style={[
-                    styles.seasonTitle,
-                    selectedSeason === season.id && styles.seasonTitleSelected,
-                  ]}>
-                    {season.title}
-                  </Text>
-                  {selectedSeason === season.id && (
-                    <View style={styles.seasonBadge}>
-                      <Text style={styles.seasonBadgeText}>Seleccionado</Text>
+                    <View style={styles.seasonInfo}>
+                      <Text style={[styles.seasonTitle, active && styles.seasonTitleSelected]}>
+                        {season.title}
+                      </Text>
+                      {active && (
+                        <View style={styles.seasonBadge}>
+                          <Feather name="check-circle" size={12} color={colors.primary} />
+                          <Text style={styles.seasonBadgeText}>Seleccionado</Text>
+                        </View>
+                      )}
                     </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+          </View>
 
-          {/* Botones */}
+          {/* ===== BOTONES ===== */}
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity 
-              style={[
-                styles.nextButton,
-                selectedSeason !== null && styles.nextButtonActive,
-              ]}
-              activeOpacity={0.8}
+            <TouchableOpacity
+              style={[styles.nextButton, selectedSeason !== null && styles.nextButtonActive]}
+              activeOpacity={0.85}
               disabled={selectedSeason === null}
             >
-              <Text style={[
-                styles.nextText,
-                selectedSeason !== null && styles.nextTextActive,
-              ]}>
+              <Text style={[styles.nextText, selectedSeason !== null && styles.nextTextActive]}>
                 Siguiente
               </Text>
-              <Feather 
-                name="arrow-right" 
-                size={18} 
-                color={selectedSeason !== null ? '#ffffff' : '#8a9a8e'} 
+              <Feather
+                name="arrow-right"
+                size={18}
+                color={selectedSeason !== null ? '#ffffff' : colors.textLight}
               />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.prevButton} activeOpacity={0.7}>
-              <Feather name="arrow-left" size={16} color="#4a6a4e" />
+            <TouchableOpacity style={styles.prevButton} activeOpacity={0.8}>
+              <Feather name="arrow-left" size={16} color={colors.textBody} />
               <Text style={styles.prevText}>Anterior</Text>
             </TouchableOpacity>
           </View>
@@ -190,71 +201,84 @@ export default function TestTemporadaScreen({ onClose }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5faf7',
+    backgroundColor: colors.background,
   },
+  // ===== HEADER =====
   header: {
+    height: 76,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
+  logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
-  },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0a3a1a',
-    letterSpacing: 0.3,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f0f5f2',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 100,
-  },
-  progressContainer: {
     backgroundColor: '#ffffff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 14,
-    padding: 16,
-    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(16,82,25,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
+    marginRight: 12,
+  },
+  logo: {
+    width: 90,
+    height: 32,
+    borderRadius: 10,
+  },
+  headerTitle: {
+    fontSize: fonts.xl,
+    fontWeight: '900',
+    color: colors.primary,
+    lineHeight: 22,
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginTop: 1,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // ===== SCROLL =====
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  // ===== PROGRESO =====
+  progressContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: radius.lg,
+    padding: 16,
+    marginBottom: 24,
+    ...shadows.card,
   },
   progressTop: {
     flexDirection: 'row',
@@ -264,74 +288,88 @@ const styles = StyleSheet.create({
   progressLabel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+  },
+  progressIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4a6a4e',
+    fontSize: fonts.sm,
+    fontWeight: '700',
+    color: colors.textBody,
     letterSpacing: 0.3,
   },
   percentText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#0d8a4e',
+    fontSize: fonts.md,
+    fontWeight: '800',
+    color: colors.primaryMain,
   },
   progressBg: {
-    height: 6,
-    backgroundColor: '#e8ede8',
-    borderRadius: 3,
-    marginTop: 10,
+    height: 7,
+    backgroundColor: colors.border,
+    borderRadius: 4,
+    marginTop: 12,
     overflow: 'hidden',
   },
   progressFill: {
     width: '66%',
     height: '100%',
-    backgroundColor: '#0d8a4e',
-    borderRadius: 3,
+    borderRadius: 4,
+  },
+  // ===== TÍTULO =====
+  titleBlock: {
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    color: '#0a3a1a',
-    fontWeight: '700',
+    color: colors.textDark,
+    fontWeight: '900',
     lineHeight: 32,
     letterSpacing: 0.3,
-    textAlign: 'center',
     marginBottom: 8,
   },
   description: {
-    fontSize: 14,
-    color: '#4a6a4e',
+    fontSize: fonts.md,
+    color: colors.textBody,
     lineHeight: 22,
-    fontWeight: '400',
-    textAlign: 'center',
-    marginBottom: 24,
+    fontWeight: '500',
+  },
+  // ===== TEMPORADAS =====
+  seasonsList: {
+    gap: 12,
   },
   seasonCardWrapper: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   seasonCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 14,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadows.card,
   },
   seasonCardSelected: {
-    borderColor: '#0d8a4e',
+    borderColor: colors.primaryMain,
   },
   seasonImage: {
-    height: 180,
+    height: 170,
     width: '100%',
   },
   seasonImageRadius: {
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+  },
+  seasonImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   seasonOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -343,7 +381,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(13, 138, 78, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -357,54 +394,52 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   seasonTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0a3a1a',
+    fontSize: fonts.lg,
+    fontWeight: '700',
+    color: colors.textDark,
     letterSpacing: 0.3,
   },
   seasonTitleSelected: {
-    color: '#0d8a4e',
-    fontWeight: '700',
+    color: colors.primary,
+    fontWeight: '800',
   },
   seasonBadge: {
-    backgroundColor: 'rgba(13, 138, 78, 0.06)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.1)',
+    borderRadius: radius.pill,
+    gap: 4,
   },
   seasonBadgeText: {
-    fontSize: 10,
-    color: '#0d8a4e',
-    fontWeight: '600',
+    fontSize: fonts.xs,
+    color: colors.primary,
+    fontWeight: '700',
     letterSpacing: 0.3,
   },
+  // ===== BOTONES =====
   buttonsContainer: {
     marginTop: 24,
-    gap: 8,
+    gap: 10,
   },
   nextButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: '#e8ede8',
+    height: 52,
+    borderRadius: radius.pill,
+    backgroundColor: colors.border,
     gap: 8,
   },
   nextButtonActive: {
-    backgroundColor: '#0d8a4e',
-    shadowColor: '#0d8a4e',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
+    backgroundColor: colors.primaryMain,
+    ...shadows.green,
   },
   nextText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#8a9a8e',
+    fontSize: fonts.lg,
+    fontWeight: '800',
+    color: colors.textLight,
     letterSpacing: 0.3,
   },
   nextTextActive: {
@@ -414,59 +449,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 44,
-    borderRadius: 14,
-    borderWidth: 1,
+    height: 46,
+    borderRadius: radius.pill,
+    borderWidth: 1.5,
     borderColor: 'rgba(13, 138, 78, 0.15)',
     gap: 6,
     backgroundColor: '#ffffff',
   },
   prevText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#4a6a4e',
-    letterSpacing: 0.3,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
+    fontSize: fonts.md,
     fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
+    color: colors.textBody,
+    letterSpacing: 0.3,
   },
 });
