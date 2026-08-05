@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,16 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import QroStoreBottomNav from './QroStoreBottomNav';
 
-const productos = [
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
+
+const productosIniciales = [
   {
     id: 1,
     nombre: 'Playera QroHuerto',
@@ -53,7 +58,45 @@ const productos = [
     imagen:
       'https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?auto=format&fit=crop&w=900&q=80',
   },
+  {
+    id: 5,
+    nombre: 'Semillas de Tomate',
+    categoria: 'Semillas',
+    precio: 42,
+    descripcion: 'Semillas seleccionadas de tomate Roma, alta germinación y sabor.',
+    imagen:
+      'https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 6,
+    nombre: 'Maceta de Fibra',
+    categoria: 'Sustratos',
+    precio: 58,
+    descripcion: 'Maceta biodegradable de fibra de coco para trasplante directo.',
+    imagen:
+      'https://images.unsplash.com/photo-1459156212016-c812468e2115?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 7,
+    nombre: 'Regadera de Jardín',
+    categoria: 'Herramientas',
+    precio: 96,
+    descripcion: 'Regadera ligera con rociador regulable, 2 litros de capacidad.',
+    imagen:
+      'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 8,
+    nombre: 'Tijeras de Poda',
+    categoria: 'Herramientas',
+    precio: 129,
+    descripcion: 'Tijeras de poda profesional con hojas de acero inoxidable.',
+    imagen:
+      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
+  },
 ];
+
+const categorias = ['Todos', 'Fertilizantes', 'Tierra', 'Ropa', 'Semillas', 'Herramientas'];
 
 export default function QroStoreScreen({ onClose, onNavigate }) {
   const [favoritos, setFavoritos] = useState([]);
@@ -61,21 +104,52 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
   const [modalVista, setModalVista] = useState('pago');
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [metodoSeleccionado, setMetodoSeleccionado] = useState('mastercard');
+  const [searchText, setSearchText] = useState('');
+  const [categoriaActiva, setCategoriaActiva] = useState('Todos');
+  const [cartCount, setCartCount] = useState(2);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const [nombreTarjeta, setNombreTarjeta] = useState('');
   const [numeroTarjeta, setNumeroTarjeta] = useState('');
   const [fechaTarjeta, setFechaTarjeta] = useState('');
   const [cvvTarjeta, setCvvTarjeta] = useState('');
 
+  const productosFiltrados = useMemo(() => {
+    return productosIniciales.filter((p) => {
+      const matchCategoria =
+        categoriaActiva === 'Todos' ||
+        (categoriaActiva === 'Tierra'
+          ? p.categoria === 'Sustratos'
+          : p.categoria === categoriaActiva);
+      const matchSearch = p.nombre
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+      return matchCategoria && matchSearch;
+    });
+  }, [categoriaActiva, searchText]);
+
   const toggleFavorito = (id) => {
-    if (favoritos.includes(id)) {
-      setFavoritos(favoritos.filter((item) => item !== id));
-    } else {
-      setFavoritos([...favoritos, id]);
-    }
+    setFavoritos(
+      (prev) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.3,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const agregarCarrito = (producto) => {
+    setCartCount((c) => c + 1);
     Alert.alert(
       'Producto añadido al carrito',
       `${producto.nombre} se agregó correctamente al carrito.`
@@ -102,7 +176,7 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
           : 'Nueva tarjeta'
       }.`
     );
-
+    setCartCount((c) => c + 1);
     cerrarModal();
   };
 
@@ -137,22 +211,34 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
       <StatusBar style="dark" />
 
       <View style={styles.container}>
+        {/* ===== HEADER CON LOGO ===== */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons
-              name="shopping-outline"
-              size={24}
-              color="#154f1f"
-            />
-            <Text style={styles.headerTitle}>QroStore</Text>
+            <View style={styles.logoContainer}>
+              <Image
+                source={logoImage}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <View>
+              <Text style={styles.headerTitle}>QroStore</Text>
+              <Text style={styles.headerSubtitle}>Productos para tu huerto</Text>
+            </View>
           </View>
 
           <View style={styles.headerIcons}>
             <TouchableOpacity
               activeOpacity={0.85}
+              style={styles.headerIconButton}
               onPress={() => onNavigate('carrito')}
             >
-              <Feather name="shopping-cart" size={22} color="#154f1f" />
+              <Feather name="shopping-cart" size={21} color="#154f1f" />
+              {cartCount > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                </View>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -165,16 +251,25 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* ===== BUSCADOR FUNCIONAL ===== */}
           <View style={styles.searchBox}>
-            <Feather name="search" size={22} color="#6d766c" />
+            <Feather name="search" size={20} color="#6d766c" />
             <TextInput
-              editable={false}
               placeholder="Buscar productos, semillas o fertilizantes..."
               placeholderTextColor="#7a8179"
               style={styles.searchInput}
+              value={searchText}
+              onChangeText={setSearchText}
+              returnKeyType="search"
             />
+            {searchText !== '' && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Feather name="x" size={18} color="#6d766c" />
+              </TouchableOpacity>
+            )}
           </View>
 
+          {/* ===== BANNER ===== */}
           <ImageBackground
             source={{
               uri: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
@@ -183,72 +278,94 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
             imageStyle={styles.bannerRadius}
           >
             <View style={styles.bannerOverlay} />
+            <View style={styles.bannerBadge}>
+              <View style={styles.bannerBadgeDot} />
+<Text style={styles.bannerBadgeText}>QROHUERTO</Text>
+            </View>
             <Text style={styles.bannerTitle}>Todo para tu huerto</Text>
             <Text style={styles.bannerText}>
               Fertilizantes, tierra, semillas y productos QroHuerto.
             </Text>
+            <View style={styles.bannerButton}>
+              <Text style={styles.bannerButtonText}>Explorar</Text>
+              <Feather name="arrow-right" size={14} color="#105219" />
+            </View>
           </ImageBackground>
 
-          <View style={styles.categoryRow}>
-            <CategoryChip label="Todos" active />
-            <CategoryChip label="Fertilizantes" />
-            <CategoryChip label="Tierra" />
-            <CategoryChip label="Ropa" />
-          </View>
+          {/* ===== CATEGORÍAS FUNCIONALES ===== */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryScroll}
+          >
+            {categorias.map((cat) => {
+              const active = categoriaActiva === cat;
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  style={[styles.chip, active && styles.chipActive]}
+                  onPress={() => setCategoriaActiva(cat)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
+          {/* ===== ENCABEZADO DE SECCIÓN ===== */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Productos destacados</Text>
-            <Text style={styles.sectionLink}>Ver todo</Text>
+            <View>
+              <Text style={styles.sectionTitle}>
+                {searchText ? 'Resultados de búsqueda' : 'Productos destacados'}
+              </Text>
+              <Text style={styles.sectionCount}>
+                {productosFiltrados.length} productos disponibles
+              </Text>
+            </View>
+            {productosFiltrados.length > 0 && (
+              <TouchableOpacity activeOpacity={0.7}>
+                <Text style={styles.sectionLink}>Ver todo</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
-          <View style={styles.productsGrid}>
-            {productos.map((producto) => (
-              <ProductCard
-                key={producto.id}
-                producto={producto}
-                favorito={favoritos.includes(producto.id)}
-                onFavorito={() => toggleFavorito(producto.id)}
-                onCarrito={() => agregarCarrito(producto)}
-                onComprar={() => abrirCompra(producto)}
-              />
-            ))}
-          </View>
+          {/* ===== GRID DE PRODUCTOS ===== */}
+          {productosFiltrados.length > 0 ? (
+            <View style={styles.productsGrid}>
+              {productosFiltrados.map((producto) => (
+                <ProductCard
+                  key={producto.id}
+                  producto={producto}
+                  favorito={favoritos.includes(producto.id)}
+                  scaleAnim={favoritos.includes(producto.id) ? scaleAnim : null}
+                  onFavorito={() => toggleFavorito(producto.id)}
+                  onCarrito={() => agregarCarrito(producto)}
+                  onComprar={() => abrirCompra(producto)}
+                />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIcon}>
+                <Feather name="search" size={36} color="#b2c8b0" />
+              </View>
+              <Text style={styles.emptyText}>No se encontraron productos</Text>
+              <Text style={styles.emptySubtext}>
+                Prueba con otra categoría o búsqueda diferente
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.bottomSpacer} />
         </ScrollView>
 
-        <View style={styles.bottomNav}>
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={styles.navItem}
-            onPress={() => onNavigate('inicio')}
-          >
-            <Feather name="home" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Inicio</Text>
-          </TouchableOpacity>
+{/* ===== BOTTOM NAV PERSISTENTE ===== */}
+        <QroStoreBottomNav active="tienda" onNavigate={onNavigate} />
 
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={styles.navItem}
-            onPress={() => onNavigate('favoritos')}
-          >
-            <Feather name="heart" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Favoritos</Text>
-          </TouchableOpacity>
-
-          <View style={styles.navActive}>
-            <Feather name="shopping-bag" size={21} color="#5a7c58" />
-            <Text style={styles.navActiveText}>Tienda</Text>
-          </View>
-
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={styles.navItem}
-            onPress={() => onNavigate('perfil')}
-          >
-            <Feather name="user" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Perfil</Text>
-          </TouchableOpacity>
-        </View>
-
+        {/* ===== MODAL DE PAGO ===== */}
         <Modal
           transparent
           visible={modalVisible}
@@ -264,7 +381,9 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
                 {modalVista === 'pago' ? (
                   <>
                     <View style={styles.modalHeader}>
-                      <Text style={styles.modalTitle}>Selecciona método de pago</Text>
+                      <Text style={styles.modalTitle}>
+                        Selecciona método de pago
+                      </Text>
 
                       <TouchableOpacity onPress={cerrarModal}>
                         <Feather name="x" size={24} color="#154f1f" />
@@ -301,7 +420,9 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
                       </View>
 
                       <View style={styles.paymentTextBox}>
-                        <Text style={styles.paymentTitle}>Mastercard •••• 8888</Text>
+                        <Text style={styles.paymentTitle}>
+                          Mastercard •••• 8888
+                        </Text>
                         <Text style={styles.paymentSubtitle}>Expira 09/25</Text>
                       </View>
 
@@ -345,7 +466,9 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
                         <Feather name="arrow-left" size={24} color="#154f1f" />
                       </TouchableOpacity>
 
-                      <Text style={styles.modalTitleCard}>Agregar nueva tarjeta</Text>
+                      <Text style={styles.modalTitleCard}>
+                        Agregar nueva tarjeta
+                      </Text>
 
                       <TouchableOpacity onPress={cerrarModal}>
                         <Feather name="x" size={24} color="#154f1f" />
@@ -369,7 +492,9 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
                         </Text>
 
                         <Text style={styles.fakeCardText}>
-                          {fechaTarjeta.trim() !== '' ? fechaTarjeta : 'MM/AA'}
+                          {fechaTarjeta.trim() !== ''
+                            ? fechaTarjeta
+                            : 'MM/AA'}
                         </Text>
                       </View>
                     </View>
@@ -430,66 +555,83 @@ export default function QroStoreScreen({ onClose, onNavigate }) {
   );
 }
 
-function CategoryChip({ label, active }) {
-  return (
-    <View style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipText, active && styles.chipTextActive]}>
-        {label}
-      </Text>
-    </View>
-  );
-}
+function ProductCard({ producto, favorito, scaleAnim, onFavorito, onCarrito, onComprar }) {
+  const cardScale = useRef(new Animated.Value(1)).current;
 
-function ProductCard({ producto, favorito, onFavorito, onCarrito, onComprar }) {
+  const handlePressIn = () => {
+    Animated.timing(cardScale, {
+      toValue: 0.96,
+      duration: 90,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.timing(cardScale, {
+      toValue: 1,
+      duration: 90,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <View style={styles.productCard}>
-      <ImageBackground
-        source={{ uri: producto.imagen }}
-        style={styles.productImage}
-        imageStyle={styles.productImageRadius}
-      >
-        <TouchableOpacity
-          activeOpacity={0.85}
-          style={styles.favoriteButton}
-          onPress={onFavorito}
+    <Animated.View
+      style={[
+        styles.productCard,
+        { transform: [{ scale: cardScale }] },
+      ]}
+    >
+      <TouchableOpacity activeOpacity={0.95} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+        <ImageBackground
+          source={{ uri: producto.imagen }}
+          style={styles.productImage}
+          imageStyle={styles.productImageRadius}
         >
-          <MaterialCommunityIcons
-            name={favorito ? 'heart' : 'heart-outline'}
-            size={25}
-            color={favorito ? '#c71920' : '#154f1f'}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.favoriteButton}
+            onPress={onFavorito}
+          >
+            <Animated.View style={{ transform: [{ scale: scaleAnim || 1 }] }}>
+              <MaterialCommunityIcons
+                name={favorito ? 'heart' : 'heart-outline'}
+                size={25}
+                color={favorito ? '#c71920' : '#154f1f'}
+              />
+            </Animated.View>
+          </TouchableOpacity>
 
-        <View style={styles.productTag}>
-          <Text style={styles.productTagText}>{producto.categoria}</Text>
-        </View>
-      </ImageBackground>
+          <View style={styles.productTag}>
+            <Text style={styles.productTagText}>{producto.categoria}</Text>
+          </View>
+        </ImageBackground>
 
-      <View style={styles.productBody}>
-        <Text style={styles.productName}>{producto.nombre}</Text>
-        <Text style={styles.productDescription}>{producto.descripcion}</Text>
+        <View style={styles.productBody}>
+          <Text style={styles.productName}>{producto.nombre}</Text>
+          <Text style={styles.productDescription}>{producto.descripcion}</Text>
 
-        <View style={styles.priceRow}>
-          <Text style={styles.price}>${producto.precio} MXN</Text>
+          <View style={styles.priceRow}>
+            <Text style={styles.price}>${producto.precio} MXN</Text>
+
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.cartButton}
+              onPress={onCarrito}
+            >
+              <Feather name="shopping-cart" size={18} color="#154f1f" />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             activeOpacity={0.85}
-            style={styles.cartButton}
-            onPress={onCarrito}
+            style={styles.buyButton}
+            onPress={onComprar}
           >
-            <Feather name="shopping-cart" size={19} color="#154f1f" />
+            <Text style={styles.buyButtonText}>Comprar</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          activeOpacity={0.85}
-          style={styles.buyButton}
-          onPress={onComprar}
-        >
-          <Text style={styles.buyButtonText}>Comprar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -502,8 +644,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f7faf7',
   },
+  // ===== HEADER CON LOGO =====
   header: {
-    height: 66,
+    height: 76,
     paddingHorizontal: 20,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
@@ -516,111 +659,236 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  logoContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#f0f7f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(21, 79, 31, 0.08)',
+    shadowColor: '#0d8a4e',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    marginRight: 12,
+    overflow: 'hidden',
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+  },
   headerTitle: {
-    marginLeft: 8,
-    fontSize: 25,
+    fontSize: 23,
     fontWeight: '900',
     color: '#154f1f',
+    lineHeight: 26,
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: '#6d7d6a',
+    fontWeight: '600',
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#f0f7f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#d71920',
+    minWidth: 19,
+    height: 19,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    paddingHorizontal: 3,
+  },
+  cartBadgeText: {
+    color: '#ffffff',
+    fontSize: 9,
+    fontWeight: '800',
+  },
   closeButton: {
-    marginLeft: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    marginLeft: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#eef4ed',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // ===== SCROLL =====
   scrollContent: {
     padding: 20,
     paddingBottom: 118,
   },
+  // ===== BUSCADOR =====
   searchBox: {
-    height: 56,
+    height: 54,
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e8eee8',
   },
   searchInput: {
     flex: 1,
-    marginLeft: 13,
-    fontSize: 15,
-    color: '#333',
+    marginLeft: 12,
+    fontSize: 14,
+    color: '#222822',
+    fontWeight: '500',
   },
+  // ===== BANNER =====
   banner: {
-    height: 165,
-    borderRadius: 12,
+    height: 170,
+    borderRadius: 16,
     padding: 22,
     justifyContent: 'center',
     overflow: 'hidden',
     marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 6,
   },
   bannerRadius: {
-    borderRadius: 12,
+    borderRadius: 16,
   },
   bannerOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(16,82,25,0.72)',
+    backgroundColor: 'rgba(16,82,25,0.70)',
+  },
+  bannerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  bannerBadgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#7ddfa0',
+    marginRight: 7,
+  },
+  bannerBadgeText: {
+    color: '#7ddfa0',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
   bannerTitle: {
     color: '#ffffff',
-    fontSize: 30,
+    fontSize: 27,
     fontWeight: '900',
-    lineHeight: 36,
+    lineHeight: 33,
   },
   bannerText: {
     color: '#eaf8e9',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
-    lineHeight: 22,
-    marginTop: 8,
-    width: '85%',
+    lineHeight: 19,
+    marginTop: 4,
+    width: '86%',
   },
-  categoryRow: {
+  bannerButton: {
     flexDirection: 'row',
-    marginBottom: 22,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#c9efc5',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+    gap: 6,
+  },
+  bannerButtonText: {
+    color: '#105219',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  // ===== CATEGORÍAS =====
+  categoryScroll: {
+    paddingBottom: 4,
+    marginBottom: 16,
   },
   chip: {
     paddingHorizontal: 15,
     paddingVertical: 9,
     borderRadius: 20,
-    backgroundColor: '#c9efc5',
+    backgroundColor: '#ffffff',
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#e8eee8',
   },
   chipActive: {
     backgroundColor: '#105219',
+    borderColor: '#105219',
   },
   chipText: {
     color: '#5a7c58',
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '800',
   },
   chipTextActive: {
     color: '#ffffff',
   },
+  // ===== SECCIÓN =====
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   sectionTitle: {
     flex: 1,
     color: '#154f1f',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '900',
+  },
+  sectionCount: {
+    color: '#7a8d78',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
   sectionLink: {
     color: '#154f1f',
     fontSize: 13,
     fontWeight: '900',
+    marginLeft: 10,
   },
+  // ===== GRID =====
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -629,20 +897,20 @@ const styles = StyleSheet.create({
   productCard: {
     width: '48%',
     backgroundColor: '#ffffff',
-    borderRadius: 12,
-    marginBottom: 18,
+    borderRadius: 14,
+    marginBottom: 16,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 3,
   },
   productImage: {
-    height: 145,
+    height: 140,
   },
   productImageRadius: {
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
   favoriteButton: {
     position: 'absolute',
@@ -654,6 +922,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
   },
   productTag: {
     position: 'absolute',
@@ -674,16 +947,16 @@ const styles = StyleSheet.create({
   },
   productName: {
     color: '#154f1f',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '900',
   },
   productDescription: {
     color: '#555d55',
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11,
+    lineHeight: 16,
     fontWeight: '600',
-    marginTop: 6,
-    minHeight: 52,
+    marginTop: 5,
+    minHeight: 48,
   },
   priceRow: {
     marginTop: 10,
@@ -693,7 +966,7 @@ const styles = StyleSheet.create({
   price: {
     flex: 1,
     color: '#6d542f',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '900',
   },
   cartButton: {
@@ -706,7 +979,7 @@ const styles = StyleSheet.create({
   },
   buyButton: {
     height: 38,
-    borderRadius: 8,
+    borderRadius: 9,
     backgroundColor: '#105219',
     alignItems: 'center',
     justifyContent: 'center',
@@ -717,18 +990,49 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '900',
   },
+  // ===== VACÍO =====
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#f0f7f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  emptyText: {
+    color: '#154f1f',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  emptySubtext: {
+    color: '#7a8d78',
+    fontSize: 13,
+    fontWeight: '500',
+    marginTop: 5,
+    textAlign: 'center',
+  },
+  bottomSpacer: {
+    height: 10,
+  },
+  // ===== BOTTOM NAV =====
   bottomNav: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 82,
+    height: 78,
     backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     borderTopWidth: 1,
     borderTopColor: '#edf0ed',
+    paddingBottom: Platform.OS === 'ios' ? 16 : 6,
   },
   navActive: {
     width: 82,
@@ -745,13 +1049,32 @@ const styles = StyleSheet.create({
   },
   navItem: {
     alignItems: 'center',
+    position: 'relative',
   },
   navText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#3d463c',
     fontWeight: '700',
     marginTop: 3,
   },
+  navBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    backgroundColor: '#d71920',
+    minWidth: 17,
+    height: 17,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  navBadgeText: {
+    color: '#ffffff',
+    fontSize: 8,
+    fontWeight: '800',
+  },
+  // ===== MODAL =====
   modalKeyboard: {
     flex: 1,
   },
@@ -776,14 +1099,14 @@ const styles = StyleSheet.create({
   modalTitle: {
     flex: 1,
     color: '#154f1f',
-    fontSize: 23,
+    fontSize: 22,
     fontWeight: '900',
   },
   modalTitleCard: {
     flex: 1,
     textAlign: 'center',
     color: '#154f1f',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
   },
   purchaseSummary: {
@@ -794,19 +1117,19 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     color: '#5a6259',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '900',
     letterSpacing: 1,
   },
   summaryName: {
     color: '#154f1f',
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '900',
     marginTop: 5,
   },
   summaryPrice: {
     color: '#6d542f',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '900',
     marginTop: 6,
   },
@@ -838,12 +1161,12 @@ const styles = StyleSheet.create({
   },
   paymentTitle: {
     color: '#161c16',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
   paymentSubtitle: {
     color: '#4d554d',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     marginTop: 4,
   },
@@ -880,7 +1203,7 @@ const styles = StyleSheet.create({
   addPaymentText: {
     marginLeft: 8,
     color: '#536052',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
   confirmButton: {
@@ -893,7 +1216,7 @@ const styles = StyleSheet.create({
   },
   confirmText: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '900',
     marginRight: 8,
   },
@@ -912,7 +1235,7 @@ const styles = StyleSheet.create({
   },
   fakeCardNumber: {
     color: '#ffffff',
-    fontSize: 21,
+    fontSize: 20,
     fontWeight: '800',
     letterSpacing: 2,
   },
@@ -931,7 +1254,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     color: '#222822',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     marginBottom: 12,
     borderWidth: 1,
@@ -945,3 +1268,4 @@ const styles = StyleSheet.create({
     width: '48%',
   },
 });
+

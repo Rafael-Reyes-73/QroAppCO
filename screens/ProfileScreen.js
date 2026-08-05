@@ -15,10 +15,11 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import QroStoreBottomNav from './QroStoreBottomNav';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
-export default function ProfileScreen({ onClose, hideMenu = false }) {
+export default function ProfileScreen({ onClose, hideMenu = false, onNavigate }) {
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -94,7 +95,10 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
         <ScrollView 
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            onNavigate && styles.scrollContentWithNav,
+          ]}
         >
           {/* Perfil Header con gradiente */}
           <LinearGradient
@@ -184,6 +188,9 @@ export default function ProfileScreen({ onClose, hideMenu = false }) {
             <Text style={styles.versionText}>QroHuerto v2.4</Text>
           </View>
         </ScrollView>
+
+        {/* Bottom nav persistente */}
+        {onNavigate && <QroStoreBottomNav active="perfil" onNavigate={onNavigate} />}
       </View>
     </SafeAreaView>
   );
@@ -281,6 +288,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 40,
+  },
+  scrollContentWithNav: {
+    paddingBottom: 100,
   },
   // Perfil Header
   profileHeader: {

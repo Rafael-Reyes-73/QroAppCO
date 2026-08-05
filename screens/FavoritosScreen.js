@@ -8,17 +8,16 @@ import {
   TouchableOpacity,
   ImageBackground,
   Animated,
-  Platform,
   Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+import QroStoreBottomNav from './QroStoreBottomNav';
 
 const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
-export default function FavoritosScreen({ onClose }) {
+export default function FavoritosScreen({ onClose, onNavigate }) {
   const [likedItems, setLikedItems] = useState({});
-  const [selectedTab, setSelectedTab] = useState('catalog');
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const favorites = [
@@ -65,26 +64,19 @@ export default function FavoritosScreen({ onClose }) {
     ]).start();
   };
 
-  const tabs = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'catalog', icon: 'grid', label: 'Catálogo' },
-    { id: 'test', icon: 'help-circle', label: 'Test' },
-    { id: 'profile', icon: 'user', label: 'Perfil' },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" backgroundColor="#f5faf7" />
 
       <View style={styles.container}>
-        {/* Header */}
+        {/* Header premium con logo (estilo inicio) */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerLogoContainer}>
+            <View style={styles.logoWrapper}>
               <Image 
                 source={logoImage}
-                style={styles.headerLogo}
-                resizeMode="cover"
+                style={styles.logoImage}
+                resizeMode="contain"
               />
             </View>
             <Text style={styles.headerTitle}>Favoritos</Text>
@@ -92,16 +84,13 @@ export default function FavoritosScreen({ onClose }) {
 
           <View style={styles.headerIcons}>
             <TouchableOpacity style={styles.iconButton}>
-              <Feather name="bell" size={20} color="#0a3a1a" />
+              <Feather name="bell" size={19} color="#0a3a1a" />
               <View style={styles.notificationBadge}>
                 <Text style={styles.notificationText}>3</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Feather name="search" size={20} color="#0a3a1a" />
-            </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={20} color="#0a3a1a" />
+              <Feather name="x" size={19} color="#0a3a1a" />
             </TouchableOpacity>
           </View>
         </View>
@@ -110,11 +99,21 @@ export default function FavoritosScreen({ onClose }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Título con acento premium */}
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Mis Favoritos</Text>
+            <View style={styles.titleRow}>
+              <View style={styles.sectionIconLine} />
+              <Text style={styles.title}>Mis Favoritos</Text>
+            </View>
             <Text style={styles.subtitle}>
               Gestiona tus semillas preferidas y comienza tu próximo cultivo orgánico.
             </Text>
+          </View>
+
+          {/* Contador */}
+          <View style={styles.countBadge}>
+            <Feather name="heart" size={14} color="#0d8a4e" />
+            <Text style={styles.countBadgeText}>{favorites.length} favoritos guardados</Text>
           </View>
 
           {favorites.map((item) => (
@@ -151,6 +150,7 @@ export default function FavoritosScreen({ onClose }) {
 
                   <View style={styles.cardButtons}>
                     <TouchableOpacity activeOpacity={0.8} style={styles.detailButton}>
+                      <Feather name="eye" size={14} color="#0a3a1a" />
                       <Text style={styles.detailText}>Ver Detalles</Text>
                     </TouchableOpacity>
 
@@ -163,7 +163,12 @@ export default function FavoritosScreen({ onClose }) {
               </View>
             </View>
           ))}
+
+          <View style={styles.footerSpacer} />
         </ScrollView>
+
+        {/* Bottom nav persistente */}
+        <QroStoreBottomNav active="favoritos" onNavigate={onNavigate} />
       </View>
     </SafeAreaView>
   );
@@ -193,20 +198,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  headerLogoContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-    justifyContent: 'center',
+  logoWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(13, 138, 78, 0.12)',
+    borderColor: 'rgba(13, 138, 78, 0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  headerLogo: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
+  logoImage: {
+    width: 80,
+    height: 28,
+    borderRadius: 4,
   },
   headerTitle: {
     fontSize: 20,
@@ -257,18 +267,51 @@ const styles = StyleSheet.create({
   titleContainer: {
     marginBottom: 24,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 4,
+  },
+  sectionIconLine: {
+    width: 3,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#0d8a4e',
+  },
   title: {
     fontSize: 24,
     color: '#0a3a1a',
     fontWeight: '700',
     letterSpacing: 0.3,
-    marginBottom: 4,
   },
   subtitle: {
     color: '#4a6a4e',
     fontSize: 14,
     lineHeight: 22,
     fontWeight: '400',
+  },
+  countBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(13, 138, 78, 0.08)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(13, 138, 78, 0.1)',
+    marginBottom: 20,
+  },
+  countBadgeText: {
+    color: '#0d8a4e',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  footerSpacer: {
+    height: 10,
   },
   cardWrapper: {
     marginBottom: 16,
@@ -352,8 +395,10 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     backgroundColor: '#f0f5f2',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
     borderWidth: 1,
     borderColor: 'rgba(13, 138, 78, 0.08)',
   },
@@ -383,47 +428,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.2,
-  },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 65,
-    backgroundColor: '#ffffff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-  },
-  navItem: {
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(13, 138, 78, 0.08)',
-  },
-  navText: {
-    fontSize: 10,
-    color: '#6a8a6e',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  navTextActive: {
-    color: '#0d8a4e',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    top: -1,
-    width: 16,
-    height: 2.5,
-    backgroundColor: '#0d8a4e',
-    borderRadius: 2,
   },
 });

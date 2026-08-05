@@ -8,9 +8,13 @@ import {
   TouchableOpacity,
   ImageBackground,
   Alert,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import QroStoreBottomNav from './QroStoreBottomNav';
+
+const logoImage = require('../assets/logo_qrohuerto.jpeg');
 
 const productosIniciales = [
   {
@@ -179,27 +183,8 @@ export default function CarritoScreen({ onClose, onNavigate }) {
           </TouchableOpacity>
         </ScrollView>
 
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('inicio')}>
-            <Feather name="home" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Inicio</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('favoritos')}>
-            <Feather name="heart" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Favoritos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('qrostore')}>
-            <Feather name="shopping-bag" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Tienda</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => onNavigate('perfil')}>
-            <Feather name="user" size={21} color="#3d463c" />
-            <Text style={styles.navText}>Perfil</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Bottom nav persistente compartido */}
+        <QroStoreBottomNav active="carrito" onNavigate={onNavigate} />
       </View>
     </SafeAreaView>
   );

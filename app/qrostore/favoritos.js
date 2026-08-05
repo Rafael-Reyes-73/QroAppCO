@@ -1,13 +1,13 @@
-import ProfileScreen from '../../screens/ProfileScreen';
+import FavoritosScreen from '../../screens/FavoritosScreen';
 import { useRouter } from 'expo-router';
 
-export default function Perfil() {
+export default function Favoritos() {
   const router = useRouter();
 
   const handleNavigate = (route) => {
     if (route === 'tienda') router.replace('/qrostore/tienda');
     else if (route === 'inicio') router.replace('/(tabs)');
-    else if (route === 'favoritos') router.replace('/qrostore/favoritos');
+    else if (route === 'perfil') router.replace('/qrostore/perfil');
     else router.back();
   };
 
@@ -15,5 +15,5 @@ export default function Perfil() {
     router.back();
   };
 
-  return <ProfileScreen onNavigate={handleNavigate} onClose={handleClose} />;
+  return <FavoritosScreen onNavigate={handleNavigate} onClose={handleClose} />;
 }

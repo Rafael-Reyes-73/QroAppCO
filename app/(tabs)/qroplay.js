@@ -1,5 +1,5 @@
-import QroPlayScreen from '../../screens/QroPlayScreen';
+import QroPlayHomeScreen from '../../screens/QroPlayHomeScreen';
 
 export default function QroPlay() {
-  return <QroPlayScreen />;
+  return <QroPlayHomeScreen />;
 }
